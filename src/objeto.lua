@@ -54,6 +54,10 @@ function Objeto:setEstado(estadoName, framei, rate)
 
 end
 
+--Se fija si el nombre del estado actual es alguno de los de la lista
+function Objeto:estaEnEstado(lista)
+   return estaEn(lista, self.estado.name)
+end
 
 -- Actualiza x e y segun vel, acc, etc
 function Objeto:updatePosition(dt) 

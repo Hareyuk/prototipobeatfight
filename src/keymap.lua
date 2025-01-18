@@ -16,6 +16,12 @@ function Tecla:new(name)
  	return self
 end
 
+--Tiempo en ms desde que se presionó por ultima vez
+function Tecla:calcular_dt()
+	local dtiempo = love.timer.getTime() - self.last_pressed_time  --tiempo en segundos
+	return dtiempo*1000 --tiempo en ms
+end
+
 Teclas = {}
 
 ----------------------------------------------------------------------------------------------------
@@ -34,11 +40,10 @@ mapaTeclas_multiplayer = {
 --La hago bidireccional, asi puedo hacer que los objetos chequeen si algo está presionado tambien 
 for key, value in pairs(mapaTeclas_multiplayer) do
 	mapaTeclas_multiplayer[value] = key
+	Teclas[key] = Tecla:new(key)
+	Teclas[value] = Teclas[key] --Mayor comodidad de poder referirse a la tecla segun la tecla real y el comando que se ejecutó
 end
 
-for key, value in pairs(mapaTeclas_multiplayer) do
-	Teclas[key] = Tecla:new(key)
-end
 
 --Descartar por ahi
 mapaTeclas_singleplayer = {
@@ -49,13 +54,14 @@ mapaTeclas_singleplayer = {
 
 ---------------------------------------------------------------------------------
 
-
+--This function is called whenever a keyboard key is pressed and receives the key that was pressed. The key can be any of the constants. 
 function love.keypressed(key)
 
    comando = mapaTeclas_multiplayer[key]
 
-   Teclas[key].isDown = true
-   Teclas[key].last_pressed_time = love.timer.getTime() --registro que ahora se pulsó esta tecla
+   tecla = Teclas[key]
+
+   tecla.isDown = true
 
    if      comando == 'Pje1_right' then
       pje1:comandoRightPress()
@@ -75,9 +81,13 @@ function love.keypressed(key)
    elseif key == 'escape' then love.quit()
    end
 
+	--registro cuando se pulsó esta tecla
+   --Esto va ultimo porque primero tengo que poder chequear contra el tiempo anterior
+   tecla.last_pressed_time = love.timer.getTime() 
 
 end
---This function is called whenever a keyboard key is pressed and receives the key that was pressed. The key can be any of the constants. 
+
+
 
 function love.keyreleased(key)
 
