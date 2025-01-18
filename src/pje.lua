@@ -14,7 +14,7 @@ require "objeto"
       -Siendo golpeado
 ]]
 
-Pje_Status ={
+Estados_Pje ={
    IDLE = 1,
    WALK = 2,
    DASH = 3,
@@ -44,17 +44,15 @@ function Personaje:new(id)
 
    --SPRITES
    self.id = id
-   self.sprites={}
-   self.sprites.idle = loadSprites("pje/reposo/")
-   self.sprites.caminando = loadSprites("pje/caminando/")
+   self:addEstado('IDLE', "pje/reposo/")
+   self:addEstado('WALK', "pje/caminando/")
    
-   self:setSprites(self.sprites.idle)   
+   self:setEstado('IDLE')   
 
    self.scale = 3
    self.rate = 5 -- rate de ciclado de sprites
 
    --STATUS
-   self.STATUS = Pje_Status.IDLE
    self.orientacionX = Orientaciones.DERECHA
 
    --POSICION
@@ -122,4 +120,6 @@ function Personaje:keypressed(key)
    elseif key == 'left' then self.velx = self.velx - self.v0
       self.orientacionX = Orientaciones.IZQUIERDA 
    end
-end   
+end
+
+

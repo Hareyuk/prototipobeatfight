@@ -6,15 +6,9 @@ Objeto = {x = 0, y  = 0,
          velx = 0, vely = 0,
          accx = 0, accy = 0,
          scale = 1,
-         currentFrame_t = 1, --timer para pasar de frames
-         currentFrame = 1,
-         currentStateFrames = nil,
-         sprites = nil, --array donde cada entrada tiene los frames de ese estado.
-                        --sprites[1] : frames para caminar
-                        --sprites[2] : frames para correr, 
-                        -- y así
+         estados = {}, --array de Estados
+         estado = nil,  --estado actual. Una instancia de Estado, referencia a un elemento de self.estados
          orientacionX = 0,  --1,2,3 o 4. Ver abajo. RRepensar con 1 y -1
-         rate = 1,  --velocidad a la que se ciclan los sprites
          name = '', -- Nombre propio. Que objeto es
          debug = false --Para cosas como mostrar su ubicacion, valor de atributos, etc
       }
@@ -40,19 +34,21 @@ function Objeto:new(name)
   return self
 end
 
-
+--Asignacion de estados
+require "estados"
+function Objeto:addEstado(nombre, path_sprites)
+   self.estados[nombre] = Estado:new(nombre, path_sprites)
+end
 
 --Recibe un array de frames para ya dibujar ese estado actual.
 --function Objeto:setSprites(frames, framei = 1, rate = self.rate)
 
---Todo cambiar frames por estado
-function Objeto:setState(frames)
-   framei = framei or  1
-   
-   self.currentFrame_t = 1 -- timer
-   self.currentStateFrames = frames
-   self.currentFrame = frames[framei] 
-   self.rate = rate  or self.rate -- rate de ciclado de sprites.
+function Objeto:setEstado(estadoName, framei, rate)
+
+   self.estado = self.estados[estadoName]
+   self.estado.rate = rate  or self.rate -- rate de ciclado de sprites.
+
+   self.estado.currentFrame_t = 0 -- timer
 
 end
 
@@ -70,22 +66,17 @@ end
 
 --Avanza los frames segun haga falta
 function Objeto:ciclarFrames(dt)
-   
-   self.currentFrame_t = (self.currentFrame_t + dt*self.rate) % #self.currentStateFrames --incremento tiempo , y wrap si me paso 
-   local i = math.floor(self.currentFrame_t) + 1 --en lua se indexa desde 1
-   self.currentFrame = self.currentStateFrames[i]
+   self.estado:ciclarFrames(dt)
 end
 
 
-
---
 --Acá repensar luego, porque el orden en que se dibujan las cosas sí importa y mucho...
 -- Y tambien calcular si el personaje aparece en pantalla o no (ej "es visible")
 function Objeto:drawFrame()
 
    if(not self:esVisible()) then return end 
 
-   local sp = self.currentFrame --sprite a dibujar, es una imagen
+   local sp = self.estado.frames[self.estado.currentFrame_i] --sprite a dibujar, es una imagen
    local w = sp:getWidth() * self.scale
    local h = sp:getHeight() * self.scale
 
@@ -98,7 +89,6 @@ function Objeto:drawFrame()
    if self.orientacionX == Orientaciones.IZQUIERDA then
       drawImage(sp, self.x, self.y, -w, h, sp:getWidth(),0)
    end
-
 
 
    if(DEBUG) then
