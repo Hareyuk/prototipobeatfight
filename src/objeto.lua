@@ -31,6 +31,8 @@ Objeto_idle = {
 function Objeto:new(name)
     local self = setmetatable({}, Objeto)
     self.name = name or ''
+
+    print('Objeto '.. name .. ' creado')
   return self
 end
 

@@ -4,6 +4,7 @@
 
 -- Importamos las demas clases
 require "sprites"--Funciones para abrir sprites y etc
+require "estados"--Definicion de clase Estado
 require "pje"    --Personajes jugables
 require "stage"  --Escenario
 require "objeto" --funciones de objetos con sprites generales
@@ -31,14 +32,14 @@ function love.load()
    Objetos = {} -- Lista de objetos actualmente en el juego. 
                   --Incluye las especializacion como Personaje1 y 2, pero no al Fondo o Escenario
 
-   Fondo:crear()
-   cursor:crear()
+   --Fondo:crear()
+   --cursor:crear()
    pje1 = Personaje:new(1)
    crearTextos()
    crearTextosDebug()
 
    table.insert(Objetos, pje1)
-   table.insert(Objetos, cursor)
+   --table.insert(Objetos, cursor)
 
    cargarMusica()
 
@@ -53,9 +54,9 @@ function love.load()
 
     --OPCIONES DE CAMARA
    camera.CAMERA_SCALE = 1
-   camera.cam_Xoff =   pje1.currentFrame:getWidth()*2
-   camera.cam_Yoff = pje1.currentFrame:getHeight() *8
-   camera:setBounds(0, 0, 0, 0) --En este caso, no dejo que se mueva mucho, porque el fondo ya ocupa toda la pantalla
+   --camera.cam_Xoff =   pje1.currentFrame:getWidth()*2
+   --camera.cam_Yoff = pje1.currentFrame:getHeight() *8
+   --camera:setBounds(0, 0, 0, 0) --En este caso, no dejo que se mueva mucho, porque el fondo ya ocupa toda la pantalla
 
 end
 
@@ -69,7 +70,7 @@ end
 
 function love.update(dt)
 
-   camera:followPje()
+   --camera:followPje()
 
    --fondo:update(dt)
 
@@ -126,23 +127,8 @@ end
 function love.mousereleased(x, y, button, istouch)
 end
 
-
 --Triggereado al detectar un keypress. Hay mas parametros. Trabajarlo aparte del love.keyisdown()
-function love.keypressed(key)
-   if key == 'return' then avanzarTexto()
-
-   elseif key == 'space' then fondo:cambiarFondo()
-
-   elseif key == 'escape' then love.quit()
-   end
-
-   pje1:keypressed(key)
-
-end
---This function is called whenever a keyboard key is pressed and receives the key that was pressed. The key can be any of the constants. 
-
-function love.keyreleased(key)
-end  
+require "keymap" --Acá todas las funciones
 
 ------------------------------------------------------------------------------------
 

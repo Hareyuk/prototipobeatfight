@@ -40,10 +40,9 @@ function Personaje:new(id)
    print("Creando personaje: " .. id)
 
 
-   local self = setmetatable(Objeto.new('Personaje ' .. id), Personaje) --Crea una instancia de objeto. Asi tiene coord x, y, etc
+   local self = setmetatable(Objeto:new('Personaje ' .. id), Personaje) --Crea una instancia de objeto. Asi tiene coord x, y, etc
 
    --SPRITES
-   self.id = id
    self:addEstado('IDLE', "pje/reposo/")
    self:addEstado('WALK', "pje/caminando/")
    
@@ -100,6 +99,52 @@ function Personaje:chequearTeclas(dt)
 
 
 end
+
+
+------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
+
+--Recibe un "mover a la derecha"
+function Personaje:comandoRightPress()
+   if self.estado.name == 'IDLE' then  --Puedo agregar otra condicion, de que este yendo a la izq por ej
+      self.velx = self.v0
+   end
+end
+
+--Recibe un "ya no se mueve a la derecha"
+function Personaje:comandoRightRelease()
+   if(not Teclas['Pje1_left'].isDown) then --si tampoco está yendo a la izquierda, lo detengo
+      self.velx = 0
+   end
+end
+
+
+
+--Recibe un "mover a la izquierda"
+function Personaje:comandoLeftPress()
+   self.velx = -self.v0
+end
+
+--Recibe un "ya no se mueve a la izquierda"
+function Personaje:comandoLeftRelease()
+   if(not Teclas['Pje1_right'].isDown) then
+      self.velx = 0
+   end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 --Cambiar
