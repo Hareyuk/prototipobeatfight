@@ -35,6 +35,12 @@ Personaje = setmetatable({}, Objeto)
 Personaje.__index = Personaje
 
 
+--[[
+   Agrega los atributos (detallar)
+
+]]
+
+
 --Constructor
 function Personaje:new(id)
    print("Creando personaje: " .. id)
@@ -61,7 +67,7 @@ function Personaje:new(id)
    --Constantes de velocidad
    self.accSpeedX = 300 -- Constante que define la aceleración
    self.maxVel = 400
-   self.v0 = 100 -- Velocidad que se agrega al presionar un botón
+   self.vwalk = 100 -- Velocidad de caminar
 
    self.__index = self
 
@@ -105,30 +111,49 @@ end
 
 --Recibe un "mover a la derecha"
 function Personaje:comandoRightPress()
-   if self.estado.name == 'IDLE' then  --Puedo agregar otra condicion, de que este yendo a la izq por ej
-      self.velx = self.v0
+
+   --Si estoy Idle o moviendome, entro a caminar. Override si estaba yendo a la izquierda
+   if estaEn({'IDLE', 'WALK', 'RUN'}, self.estado.name) then 
+      self:setEstado('WALK')
+      self.velx = self.vwalk
    end
 end
-
---Recibe un "ya no se mueve a la derecha"
-function Personaje:comandoRightRelease()
-   if(not Teclas['Pje1_left'].isDown) then --si tampoco está yendo a la izquierda, lo detengo
-      self.velx = 0
-   end
-end
-
 
 
 --Recibe un "mover a la izquierda"
 function Personaje:comandoLeftPress()
-   self.velx = -self.v0
+   if estaEn({'IDLE', 'WALK', 'RUN'}, self.estado.name) then 
+      self:setEstado('WALK')
+      self.velx = -self.vwalk
+   end
 end
+
+
+--Recibe un "ya no se mueve a la derecha"
+function Personaje:comandoRightRelease()
+   --Si estoy yendo a la derecha, paro
+   if (self.estado.name == 'WALK' or self.estado.name == 'RUN') and self.velx > 0 then 
+      self:setEstado('IDLE')
+      self.velx = 0
+   end
+
+   --Si está presionada la tecla de izq, voy para allá
+   if Teclas['Pje1_left'].isDown then self:comandoLeftPress() end
+
+end
+
+
 
 --Recibe un "ya no se mueve a la izquierda"
 function Personaje:comandoLeftRelease()
-   if(not Teclas['Pje1_right'].isDown) then
+   if (self.estado.name == 'WALK' or self.estado.name == 'RUN') and self.velx < 0 then 
+      self:setEstado('IDLE')
       self.velx = 0
    end
+
+   --Si está presionada la tecla de der, voy para allá
+   if Teclas['Pje1_right'].isDown then self:comandoRightPress() end
+
 end
 
 
