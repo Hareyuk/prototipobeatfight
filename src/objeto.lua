@@ -281,3 +281,11 @@ end
 function Objeto:noMover()
    self.x, self.y = self.prev_x, self.prev_y
 end
+
+
+--Funcion para decidir en que orden se grafican las cosas. Decido que se grafique primero lo que está "más abajo".
+--Como se determina eso, bueno, por ahora lo decidí así
+--Asi grafica ultimo el que está más abajo (en primer plano el que tiene mayor coord y en el pie) 
+function compararSegunY(obj1, obj2)
+   return obj1:getFrameActual().imagen:getHeight()*obj1.scale + obj1.y < obj2:getFrameActual().imagen:getHeight()*obj2.scale + obj2.y
+end

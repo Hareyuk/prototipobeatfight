@@ -112,9 +112,13 @@ end
 -- if you call any of the love.graphics.draw outside of this function then it's not going to have any effect.  
 function love.draw()
 
+
    love.graphics.setBackgroundColor( 0.5, 0.5,0.5 , 1 )
 
    --Por ultimo, una vez que ya calculé y acomodé todo, así sí... dibujo!!   
+
+   table.sort(objetos, compararSegunY)
+
    for i_obj, objeto in ipairs(objetos) do
       
       objeto:drawFrame()
