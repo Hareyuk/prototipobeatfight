@@ -89,7 +89,7 @@ function love.draw()
 
    love.graphics.setBackgroundColor( 0.5, 0.5,0.5 , 1 )
 
-   for _, objeto in ipairs(objetos) do
+   for i_obj, objeto in ipairs(objetos) do
       objeto:drawFrame()
       objeto:mostrarHurtbox()
       objeto:mostrarCollisionbox()
@@ -109,8 +109,8 @@ function love.draw()
       --DETECTOR DE COLISIONES DE MOVIMIENTO
       --Si el objeto está intentando moverse, veo su collisionbox contra todos los demas
       if objeto:getFrameActual().collisionbox then
-         for _, otroObjeto in ipairs(objetos) do
-            if objeto ~= otroObjeto then 
+         for j_obj, otroObjeto in ipairs(objetos) do
+            if j_obj >= i_obj then --Para no repetir los chequeos acá, pido esta condicion 
                objeto:checkMvtColl(otroObjeto) 
             end
          end

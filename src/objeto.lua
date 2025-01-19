@@ -5,6 +5,7 @@
 Objeto = {x = 0, y  = 0,
          velx = 0, vely = 0,
          accx = 0, accy = 0,
+         prev_x = 0, prev_y = 0, --para updatear el movimiento
          scale = 1,
          estados = {}, --array de Estados
          estado = nil,  --estado actual. Una instancia de Estado, referencia a un elemento de self.estados
@@ -70,6 +71,8 @@ end
 
 -- Actualiza x e y segun vel, acc, etc
 function Objeto:updatePosition(dt) 
+
+   self.prev_x, self.prev_y = self.x, self.y
 
    self.x = self.x + self.velx*dt
    self.y = self.y + self.vely*dt
@@ -266,6 +269,14 @@ function Objeto:checkMvtColl(otroObjeto)
 
    if not Objeto:haySolapamiento(self, collbox1, otroObjeto, collbox2) then return end
 
+   --Else: Sí hay solapamiento. Les digo a los dos objetos que no pueden moverse
+   self:noMover()
+   otroObjeto:noMover()
+
    print('Solapamiento de ' ..self.name .. ' a '..otroObjeto.name)
 
+end
+
+function Objeto:noMover()
+   self.x, self.y = self.prev_x, self.prev_y
 end
