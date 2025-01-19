@@ -35,7 +35,8 @@ mapaTeclas_multiplayer = {
 	right =	'Pje1_right', --tecla derecha
 	left  =	'Pje1_left',  --tecla izquierda
 	up    =	'Pje1_up',
-	down  = 'Pje2_down'
+	down  = 'Pje1_down', 
+   z = 'Pje1_atk1'
 }
 
 --La hago bidireccional, asi puedo hacer que los objetos chequeen si algo está presionado tambien 
@@ -64,6 +65,7 @@ function love.keypressed(key)
 
    tecla.isDown = true
 
+   --Aca hubo complicacion al pepe... se podria haber hecho un diccionario "Comandos" y que sea Comandos[tecla]:enviar()
    if      comando == 'Pje1_right' then
       pje1:comandoRightPress()
    elseif comando == 'Pje1_left'  then
@@ -72,6 +74,9 @@ function love.keypressed(key)
       pje1:comandoUpPress()
    elseif comando == 'Pje1_down'  then
       pje1:comandoDownPress()
+   elseif comando == 'Pje1_atk1' then
+      pje1:comandoAtk1Press()
+
    end
 
    if key == 'return' then avanzarTexto()

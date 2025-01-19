@@ -3,6 +3,7 @@
 
 
 -- Importamos las demas clases
+require "funciones" --Funciones generales basicas
 require "sprites"--Funciones para abrir sprites y etc
 require "estados"--Definicion de clase Estado
 require "pje"    --Personajes jugables
@@ -29,17 +30,17 @@ function love.load()
 
    camera:setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-   Objetos = {} -- Lista de objetos actualmente en el juego. 
+   objetos = {} -- Lista de objetos actualmente en el juego. 
                   --Incluye las especializacion como Personaje1 y 2, pero no al Fondo o Escenario
 
    --Fondo:crear()
-   --cursor:crear()
+   cursor = Cursor:crear()
    pje1 = Personaje:new(1)
    crearTextos()
    crearTextosDebug()
 
-   table.insert(Objetos, pje1)
-   --table.insert(Objetos, cursor)
+   table.insert(objetos, pje1)
+   table.insert(objetos, cursor)
 
    cargarMusica()
 
@@ -70,7 +71,7 @@ function love.update(dt)
 
    --fondo:update(dt)
 
-   for _, objeto in ipairs(Objetos) do
+   for _, objeto in ipairs(objetos) do
       objeto:update(dt)
    end
 
@@ -86,8 +87,13 @@ end
 -- if you call any of the love.graphics.draw outside of this function then it's not going to have any effect.  
 function love.draw()
 
-   for _, objeto in ipairs(Objetos) do
+   love.graphics.setBackgroundColor( 0.5, 0.5,0.5 , 1 )
+
+   for _, objeto in ipairs(objetos) do
       objeto:drawFrame()
+      --objeto:mostrarCollisionbox()
+      objeto:mostrarHitbox()
+      --objeto:mostrarHurtbox()
    end
    
   --[[
@@ -140,16 +146,3 @@ end
 
 --------------------------------------------
 
-function math.clamp(x, min, max)
-  return x < min and min or (x > max and max or x)
-end
-
---Veo si elem está en la tabla
-function estaEn(tabla, elem)
- for _, value in pairs(tabla) do
-    if value == elem then
-      return true
-    end
-  end
-  return false
-end

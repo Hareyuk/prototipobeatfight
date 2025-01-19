@@ -4,7 +4,7 @@
 Estado = {
          frames = nil,     --Array de frames
          currentFrame_t = 1, --timer para pasar de frames.
-         currentFrame_i = 1, --indice al frame actual.  Es floor() del timer. Por comodidad lo doy como una variable aparte
+         currentFrame_i = 1, --indice al frame actual.  Es floor() del timer. Por comodidad lo doy como una variable aparte. Podría ser un método.
          name = '', --id para encontrarlo o accedes a él desde un personaje
          rate = 1, --velocidad a la que cicla los frames
          accion = nil -- funcion a ser llamada durante este estado. Algunos estados piden hacer cosas especiales, eso se asigna acá. Por ej: Dash del personaje
@@ -20,7 +20,8 @@ function nada() end
 function Estado:new(name, path_frames, accion)
     local self = setmetatable({}, Estado)
     self.name = name or ''
-    self.frames = loadSprites(path_frames)
+    --self.frames = loadSprites(path_frames)  acá los frames eran solo imagenes. Viejo
+    self.frames = cargarFramesYHitboxes(path_frames) --Acá los frames son instancias de Frame. Ademas de la imagen, tienen coordenadas de los hitboxes
     self.accion = accion or nada
   return self
 end
@@ -32,3 +33,8 @@ function Estado:ciclarFrames(dt)
    self.currentFrame_i = math.floor(self.currentFrame_t) + 1 --en lua se indexa desde 1
 end
 
+
+
+function Estado:getCurrentFrame()
+   return self.frames[self.currentFrame_i] --Ojo que es un objeto y no una imagen.
+end

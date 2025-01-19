@@ -39,19 +39,28 @@ Personaje.__index = Personaje
 
 ]]
 
+--CONSTANTES DE VELOCIDAD Y MOVIMIENTO
+dt_RUN = 400 --ms. Tiempo maximo permitido entre dos aprietes de tecla consecutivos para empezar a correr
+dt_DASH = 120 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
+dash_timer_max = 300/1000 --s  tiempo que dura el dasheo
+
 
 --Constructor
 function Personaje:new(id)
    print("Creando personaje: " .. id)
+   local self = Objeto:new('Personaje '.. id)
+   setmetatable(self, {__index = Personaje}) --Crea una instancia de objeto. Asi tiene coord x, y, etc
 
 
-   local self = setmetatable(Objeto:new('Personaje ' .. id), Personaje) --Crea una instancia de objeto. Asi tiene coord x, y, etc
+
+   --local self = setmetatable(Objeto:new('Personaje ' .. id), Personaje) --Crea una instancia de objeto. Asi tiene coord x, y, etc
 
    --SPRITES
    self:addEstado('IDLE', "pje/reposo/")
    self:addEstado('WALK', "pje/caminando/")
    self:addEstado('RUN',  "pje/caminando/")
    self:addEstado('DASH',  "pje/dash/", Personaje.dashear)
+   self:addEstado('ATK1', "pje/boxtest/")
 
    --Estado actual
    self:setEstado('IDLE')   
@@ -66,12 +75,15 @@ function Personaje:new(id)
    self.x = 50
    self.y = SCREEN_HEIGHT*0.4
 
-   --Constantes de velocidad
-   self.vwalk_x = 100 -- Velocidad de caminar
-   self.vwalk_y = -40 --Velocidad de caminar en y
-   self.vrun_x = 200 -- Velocidad de correr
-
    self.__index = self
+
+
+   --Constantes de velocidad
+   self.vwalk_x = 270 -- Velocidad de caminar
+   self.vwalk_y = -80 --Velocidad de caminar en y
+   self.vrun_x = 580 -- Velocidad de correr
+   self.vdash = 5500
+
 
    print("Personaje creado!")
    print(self.estados['DASH'].accion)
@@ -95,7 +107,7 @@ function Personaje:update(dt)
 
 
    --Todo: Ver que carajo pasa que no ocurre solo con el Update de Objeto acá
-   if(self.estado.name == 'DASH') then self:dashear(dt) end
+   --if(self.estado.name == 'DASH') then self:dashear(dt) end
 
    --Se fija como actualizar las vars de movimiento
    --self:chequearTeclas(dt) 
@@ -119,10 +131,8 @@ function Personaje:chequearTeclas(dt)
 
 end
 
-------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
 
-dt_RUN = 400 --ms. Tiempo maximo permitido entre dos aprietes de tecla consecutivos para empezar a correr
-dt_DASH = 200 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
+------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
 
 
 --Recibe un "mover a la derecha"
@@ -230,6 +240,11 @@ function Personaje:comandoUpRelease()
 
 end
 
+function Personaje:comandoAtk1Press()
+   self:setEstado('ATK1')
+   self.scale = 0.3
+end
+
 
 function Personaje:keypressed(key)
    if key == 'right' then self.velx = self.velx + self.v0
@@ -241,7 +256,6 @@ function Personaje:keypressed(key)
 end
 
 
-dash_timer_max = 400/1000 --s
 --Acá se maneja todo el dasheo
 -- La idea es que hay un timer y que la velocidad y cuando termina el dash dependen de este timer 
 -- tambien se controla la animacion desde acá
@@ -263,13 +277,22 @@ function Personaje:dashear(dt)
       return
    end
 
-   self.velx = dash_vt(self.dash_timer)
+   self.velx = self:dash_vt()
    self.dash_timer = self.dash_timer + dt
 
 end 
 
 --v(t) para el dash
-function dash_vt(t)
-   return 2000*math.sqrt(-t*(t-dash_timer_max))
+--t en ms
+function Personaje:dash_vt()
+
+   local t = self.dash_timer
+
+   local semicirculo = self.vdash*math.sqrt(-t*(t-dash_timer_max))
+   local exponencial_dec = self.vdash*(10^(-t))
+   local recta_dec = self.vdash*(dash_timer_max - t)
+   return  recta_dec
 end
+
+
 
