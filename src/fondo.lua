@@ -9,34 +9,30 @@ end
 --Hay un solo escenario activo en todo momento, asi que lo creamos como instancia unica
 Escenario = {}
 
-Fondo = {}
+Fondo = setmetatable({}, Objeto)  -- Y esto es por si quiero heredar propiamente la clase y crear una nueva
+Fondo.__index = Fondo
 
 function Fondo:crear()
    print("Creando Fondo:")
+   local self = Objeto:new('Fondo')
+   setmetatable(self, {__index = Fondo}) --Crea una instancia de objeto. Asi tiene coord x, y, etc
 
-   self = Objeto:new('Fondo')
-
-
-   self.sprites = {} --array de array de sprites
-   self.sprites[1] = loadSprites("Fondos/gatos/")
-   self.sprites[2] = loadSprites("Fondos/slam/")
-   self.sprites[3] = loadSprites("Fondos/burro/")
-   self.sprites[4] = loadSprites("Fondos/kirby/")
-
-   self:setSprites(self.sprites[1])
-
-   --image1 = love.graphics.newImage("madoka.png") --SOLO ACEPTA PNGs!!!
-   --image2 = love.graphics.newImage("kirby.png")
-   --image3 = love.graphics.newImage("hamster.png") 
+   self:addEstado('castillo1', "fondos/castle1/")
+   self:addEstado('castillo2', "fondos/castle2/")
+   
+   self:setEstado('castillo1')
 
    self.fondo_i = 1
    self.rate = 3
 
+   print(self.estado.name)
    print("Fondo creado!")
+   return self
 end
 
 
 function Fondo:update(dt)
+   --No hay movimiento ni otras cosass
    self:ciclarFrames(dt)
 end
 
@@ -47,16 +43,9 @@ end
    
 
 function Fondo:draw()
-   --Color del Fondo (cambio el de slam a rosa)
-  r, g, b, a = love.graphics.getColor() -- anteriores
-
-  --Le cambio el color al Fondo de slam dunk y el de Kirby
-  if Fondo.fondo_i == 2 or Fondo.fondo_i == 4
-   then love.graphics.setColor(235/255,20/255,220/255) --rosa  
-   end 
-
-   drawImage(Fondo.currentFrame, 0, 0, WIDTH, HEIGHT)
-   love.graphics.setColor(r,g,b,a) --Restauro colores originales
+   print(self.name)
+   print(self.estado.name)
+   drawImage(self:getFrameActual().imagen, 0, 0, 2*SCREEN_WIDTH, 2*SCREEN_HEIGHT)
 end
 
 

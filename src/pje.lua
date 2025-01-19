@@ -69,8 +69,8 @@ function Personaje:new(id)
    self.orientacionX = Orientaciones.DERECHA
 
    --POSICION
-   self.x = 50
-   self.y = SCREEN_HEIGHT*0.4
+   self.x = S
+   self.y = SCREEN_HEIGHT*1.4
 
    self.__index = self
 

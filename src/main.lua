@@ -6,9 +6,9 @@
 require "funciones" --Funciones generales basicas
 require "sprites"--Funciones para abrir sprites y etc
 require "estados"--Definicion de clase Estado
+require "objeto" --funciones de objetos con sprites generales
 require "pje"    --Personajes jugables
 require "stage"  --Escenario
-require "objeto" --funciones de objetos con sprites generales
 require "camera" --Para fondos scrolleables, zoom en lugares, etc
 require "cursor" --Para el mouse bonito
 require "fondo"
@@ -33,16 +33,19 @@ function love.load()
    objetos = {} -- Lista de objetos actualmente en el juego. 
                   --Incluye las especializacion como Personaje1 y 2, pero no al Fondo o Escenario
 
-   --Fondo:crear()
    cursor = Cursor:crear()
    pje1 = Personaje:new(1)
-   columna = Columna:new(200, 100)
+   columna1 = Columna:new(600, SCREEN_HEIGHT*1.1)
+   columna2 = Columna:new(900, SCREEN_HEIGHT*1.1)
+
+   fondo = Fondo:crear() 
    crearTextos()
    crearTextosDebug()
 
    table.insert(objetos, pje1)
    table.insert(objetos, cursor)
-   table.insert(objetos, columna)
+   table.insert(objetos, columna1)
+   table.insert(objetos, columna2)
 
    cargarMusica()
 
@@ -112,6 +115,12 @@ end
 -- if you call any of the love.graphics.draw outside of this function then it's not going to have any effect.  
 function love.draw()
 
+   camera:set() --Start looking through the camera.
+   camera:setPosition(pje1.x - SCREEN_WIDTH / 2, pje1.y - SCREEN_HEIGHT / 2)
+
+   fondo:draw()
+
+
 
    love.graphics.setBackgroundColor( 0.5, 0.5,0.5 , 1 )
 
@@ -131,20 +140,14 @@ function love.draw()
 
    end
    
-  --[[
-  camera:set() --Start looking through the camera.
+  
 
-   camera:setPosition(pje1.x - WIDTH / 2, pje1.y - HEIGHT / 2)
 
    --FONDO
-   fondo:draw()
-   drawSprite(cursor)
-   drawSprite(pje1)
 
-   mostrarTexto() 
+   --mostrarTexto() 
 
    camera:unset() -- Stop looking through the camera.
-]]
 
 
 end
