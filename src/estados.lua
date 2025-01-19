@@ -8,6 +8,7 @@ Estado = {
          name = '', --id para encontrarlo o accedes a él desde un personaje
          rate = 1, --velocidad a la que cicla los frames
          accion = nil -- funcion a ser llamada durante este estado. Algunos estados piden hacer cosas especiales, eso se asigna acá. Por ej: Dash del personaje
+         --init_action = nil --funcion a llamar cuando se setea el estado
       }
 
 --Expandir luego acá con los hitboxes y demás

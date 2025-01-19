@@ -46,12 +46,12 @@ end
 --Recibe un array de frames para ya dibujar ese estado actual.
 --function Objeto:setSprites(frames, framei = 1, rate = self.rate)
 
-function Objeto:setEstado(estadoName, framei, rate)
+function Objeto:setEstado(estadoName, params, framei, rate)
 
    self.estado = self.estados[estadoName]
    self.estado.rate = rate  or self.rate -- rate de ciclado de sprites.
-
    self.estado.currentFrame_t = 0 -- timer
+   --e.init_action(params) --Si el estado necesita hacer algo al iniciarse lo hago acá. En general llama a un metodo de la clase padre, como Pje:setearWALK
 
   --print(self.estado.name)
 
@@ -86,6 +86,16 @@ end
 function Objeto:ciclarFrames(dt)
    self.estado:ciclarFrames(dt)
 end
+
+--Lo hago asi en vez de llamar uno por uno en love.update()
+--para que otros objetos puedan overridear esta funcion agregandole mas cosas si necesitan
+function Objeto:update(dt)
+   --print('Haciendo update de ' .. self.name, 'estado '.. self.estado.name)
+   self:ciclarFrames(dt)
+   self:updatePosition(dt)
+   self:updateAccion(dt)
+end
+
 
 
 --Todo revisar lo de las escalas, se recontra rompe 
@@ -128,14 +138,6 @@ function Objeto:mostrarCollisionbox()
     self:mostrarBox('collisionbox')
 end
 
---Lo hago asi en vez de llamar uno por uno en love.update()
---para que otros objetos puedan overridear esta funcion agregandole mas cosas si necesitan
-function Objeto:update(dt)
-   --print('Haciendo update de ' .. self.name, 'estado '.. self.estado.name)
-   self:ciclarFrames(dt)
-   self:updatePosition(dt)
-   self:updateAccion(dt)
-end
 
 --Acá repensar luego, porque el orden en que se dibujan las cosas sí importa y mucho...
 -- Y tambien calcular si el personaje aparece en pantalla o no (ej "es visible")

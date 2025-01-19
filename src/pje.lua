@@ -84,8 +84,8 @@ function Personaje:new(id)
 
    print("Personaje creado!")
    print(self.estados['DASH'].accion)
-   print(Personaje.dashear)
-   print(loadSprite)
+   --print(Personaje.dashear)
+   --print(loadSprite)
 
    return self
 end
@@ -108,6 +108,15 @@ function Personaje:update(dt)
    if Teclas['Pje1_grow'].isDown then self.scale = self.scale + 2*dt end
    if Teclas['Pje1_shrink'].isDown then self.scale = self.scale - 2*dt end
 
+
+   --Veo si Estoy IDLE: Ninguna tecla pulsada y vengo de un estado de movimieneto
+   if self:estaEnEstado({'WALK', 'RUN'}) and not
+      (Teclas['Pje1_right'].isDown or Teclas['Pje1_left'].isDown or Teclas['Pje1_up'].isDown or Teclas['Pje1_down'].isDown)
+   then
+      self:setEstado('IDLE')
+      self.velx, self.vely = 0 , 0 
+   end
+
 end   
 
 function Personaje:chequearTeclas(dt)
@@ -123,7 +132,7 @@ function Personaje:chequearTeclas(dt)
 end
 
 
-------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
+------------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
 
 
 --Recibe un "mover a la derecha"
@@ -131,36 +140,48 @@ end
 function Personaje:comandoRightPress()
 
    --Si estoy Idle o moviendome, entro a caminar. Override si estaba yendo a la izquierda
-   if self:estaEnEstado({'IDLE', 'WALK', 'RUN'}) then 
+   if self:estaEnEstado({'IDLE', 'WALK'}) then 
       self:setEstado('WALK')
       self.velx = self.vwalk_x
    end
 
-   local tecla = Teclas['Pje1_right']
+   --Si estoy corriendo vertical, sigo corriendo pero añado velocidad horizontal
+   if self:estaEnEstado({'RUN'}) and self.vy ~= 0 then 
+      self.velx = self.vwalk_x
+   end
 
    --Veo si puedo empezar un RUN
-   if self:estaEnEstado({'IDLE', 'WALK', 'RUN'}) and tecla:dt_last_press()< dt_RUN then
+   local tecla = Teclas['Pje1_right']
+
+   if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
       self:setEstado('RUN')
       self.velx = self.vrun_x
    end
-  --print(Teclas['Pje1_right']:calcular_dt(), Teclas['Pje1_right'].last_pressed_time)
 
+  --print(Teclas['Pje1_right']:calcular_dt(), Teclas['Pje1_right'].last_pressed_time)
 
 end
 
 --Recibe un "mover a la izquierda"
 function Personaje:comandoLeftPress()
-   if self:estaEnEstado({'IDLE', 'WALK', 'RUN'}) then 
+   if self:estaEnEstado({'IDLE', 'WALK'}) then 
       self:setEstado('WALK')
       self.velx = -self.vwalk_x
    end
 
-   --Veo si puedo empezar un RUN
-   dt_tecla = love.timer.getTime() - Teclas['Pje1_left'].last_pressed_time
-   if self:estaEnEstado({'IDLE'}) and (dt_tecla < dt_RUN) then
-      self.setEstado('RUN')
-      self.vx = -self.vrun_x
+   --Si estoy corriendo vertical, sigo corriendo pero añado velocidad horizontal
+   if self:estaEnEstado({'RUN'}) and self.vy ~= 0 then 
+      self.velx = -self.vwalk_x
    end
+
+   --Veo si puedo empezar un RUN
+   local tecla = Teclas['Pje1_left']
+
+   if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
+      self:setEstado('RUN')
+      self.velx = -self.vrun_x
+   end
+
 end
 
 
@@ -168,11 +189,48 @@ end
 function Personaje:comandoUpPress()
 
    --Si estoy Idle o moviendome, entro a caminar. Override si estaba yendo a la izquierda
-   if self:estaEnEstado({'IDLE', 'WALK', 'RUN'}) then 
+   if self:estaEnEstado({'IDLE', 'WALK'}) then 
       self:setEstado('WALK')
       self.vely = self.vwalk_y
    end
+
+   --Si estoy corriendo horizontal, sigo corriendo pero añado velocidad vert
+   if self:estaEnEstado({'RUN'}) and self.vx ~= 0 then 
+      self.vely = self.vwalk_y
+   end
+
+   --Veo si puedo empezar un RUN
+   local tecla = Teclas['Pje1_up']
+
+   if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
+      self:setEstado('RUN')
+      self.vely = self.vrun_y
+   end
+
 end
+
+function Personaje:comandoDownPress()
+      
+   --Si estoy Idle o moviendome, entro a caminar. Override si estaba yendo a la izquierda
+   if self:estaEnEstado({'IDLE', 'WALK'}) then 
+      self:setEstado('WALK')
+      self.vely = -self.vwalk_y
+   end
+
+   --Si estoy corriendo horizontal, sigo corriendo pero añado velocidad vert
+   if self:estaEnEstado({'RUN'}) and self.vx ~= 0 then 
+      self.vely = -self.vwalk_y
+   end
+
+   --Veo si puedo empezar un RUN
+   local tecla = Teclas['Pje1_up']
+
+   if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
+      self:setEstado('RUN')
+      self.vely = -self.vrun_y
+   end
+end
+
 
 
 
@@ -184,7 +242,6 @@ function Personaje:comandoRightRelease()
 
    --Veo si puedo empezar un Dash
    dt_release = tecla:dt_last_press()
-
    if self:estaEnEstado({'RUN'}) and dt_release < dt_DASH then
          self:dashear()
          return
@@ -195,14 +252,13 @@ function Personaje:comandoRightRelease()
    if Teclas['Pje1_left'].isDown then self:comandoLeftPress(); return end
 
 
-   --Si estoy yendo a la derecha, paro
+   --Si estoy yendo a la derecha, paro el mvt horizontal
+   --Tendria que chequear acá si sigue el mvt vertial
    if self:estaEnEstado({'WALK', 'RUN'}) and self.velx > 0 then 
       self:setEstado('IDLE')
       self.velx = 0
       return
    end
-
-
 
 end
 
@@ -230,6 +286,19 @@ function Personaje:comandoUpRelease()
    if Teclas['Pje1_right'].isDown then self:comandoRightPress() end
 
 end
+
+--Recibe un "ya no se mueve abajo"
+function Personaje:comandoDownRelease()
+   if self:estaEnEstado({'WALK', 'RUN'}) and self.vely > 0 then 
+      self:setEstado('IDLE')
+      self.vely = 0
+   end
+
+   --Si está presionada la tecla de der, voy para allá
+   if Teclas['Pje1_right'].isDown then self:comandoRightPress() end
+
+end
+
 
 function Personaje:comandoAtk1Press()
    self:setEstado('ATK1')
@@ -286,4 +355,9 @@ function Personaje:dash_vt()
 end
 
 
+--Se llama al entrar en un walk
+function Personaje:caminar(dir)
 
+
+
+end
