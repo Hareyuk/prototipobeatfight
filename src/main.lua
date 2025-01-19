@@ -111,7 +111,7 @@ function love.draw()
       if objeto:getFrameActual().collisionbox then
          for _, otroObjeto in ipairs(objetos) do
             if objeto ~= otroObjeto then 
-               objeto:checkMovt(otroObjeto) 
+               objeto:checkMvtColl(otroObjeto) 
             end
          end
       end

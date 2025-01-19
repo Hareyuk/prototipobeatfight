@@ -228,40 +228,43 @@ end
 --La idea es: Un objeto con frame de hit se fija si está chocando a otro objeto con frame de hurt
 --TODO: sacar los scales y chau. Es un quilombo trabajar siempre con eso
 --Si está hiteando, envía la información del hit a ambos objetos
-function Objeto:checkEstaHiteando(otroObjeto)
+function Objeto:haySolapamiento(obj1, box1, obj2, box2)
       
-   local htbox = self:getFrameActual().hitbox 
 
-   if htbox then -- este chequeo se supone que es redundante, porque ya lo hice antes de llamar. Puede volar
-      local hurtbox = otroObjeto:getFrameActual().hurtbox
-      if hurtbox then
-         return chequearColision(htbox.x*self.scale + self.x,
-                                 htbox.y*self.scale + self.y,
-                                 htbox.w*self.scale,
-                                 htbox.y*self.scale,
-                                 hurtbox.x*otroObjeto.scale + otroObjeto.x,
-                                 hurtbox.y*otroObjeto.scale + otroObjeto.y,
-                                 hurtbox.w*otroObjeto.scale,
-                                 hurtbox.y*otroObjeto.scale
-                                 )
-      end
-   end
+   return chequearColision(box1.x*obj1.scale + obj1.x,
+                           box1.y*obj1.scale + obj1.y,
+                           box1.w*obj1.scale,
+                           box1.y*obj1.scale,
+                           box2.x*obj2.scale + obj2.x,
+                           box2.y*obj2.scale + obj2.y,
+                           box2.w*obj2.scale,
+                           box2.y*obj2.scale
+                           )
 
-   return false
 end
 
 function Objeto:checkHit(otroObjeto)
+   
+   local htbox = self:getFrameActual().hitbox 
+   local hurtbox = otroObjeto:getFrameActual().hurtbox
 
-   if not self:checkEstaHiteando(otroObjeto) then return end
+   if not htbox or not hurtbox then return end
 
+   if not Objeto:haySolapamiento(self, htbox, otroObjeto, hurtbox) then return end
+   
    print('Ataque de ' ..self.name .. ' a '..otroObjeto.name)
 
 end
 
 
-function Objeto:checkMovt(otroObjeto)
+function Objeto:checkMvtColl(otroObjeto)
 
-   if not false then return end
+   local collbox1 = self:getFrameActual().collisionbox 
+   local collbox2 = otroObjeto:getFrameActual().collisionbox
+
+   if not collbox1 or not collbox2 then return end
+
+   if not Objeto:haySolapamiento(self, collbox1, otroObjeto, collbox2) then return end
 
    print('Solapamiento de ' ..self.name .. ' a '..otroObjeto.name)
 
