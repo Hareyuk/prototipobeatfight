@@ -62,10 +62,6 @@ end
 
 
 
-
-
-
-
 ------------------------------------------------------------------------------------
 
 function love.update(dt)
@@ -75,8 +71,7 @@ function love.update(dt)
    --fondo:update(dt)
 
    for _, objeto in ipairs(Objetos) do
-      objeto:updatePosition(dt)
-      objeto:ciclarFrames(dt)
+      objeto:update(dt)
    end
 
 

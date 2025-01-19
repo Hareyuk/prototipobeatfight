@@ -4,6 +4,7 @@
 Tecla = {
 		name = '', --nombre de la tecla
 		last_pressed_time = 0, --momento en que se presionó por última vez
+      last_prev_pressed_time = -9999, --momento en que se presiono por anteultima vez. para el dash
 		isDown = false
       }
 
@@ -16,8 +17,8 @@ function Tecla:new(name)
  	return self
 end
 
---Tiempo en ms desde que se presionó por ultima vez
-function Tecla:calcular_dt()
+--Tiempo en ms entre ahora y cuando se presionó por ultima vez
+function Tecla:dt_last_press()
 	local dtiempo = love.timer.getTime() - self.last_pressed_time  --tiempo en segundos
 	return dtiempo*1000 --tiempo en ms
 end
@@ -59,7 +60,7 @@ function love.keypressed(key)
 
    comando = mapaTeclas_multiplayer[key]
 
-   tecla = Teclas[key]
+   local tecla = Teclas[key]
 
    tecla.isDown = true
 

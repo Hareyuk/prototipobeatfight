@@ -52,12 +52,21 @@ function Objeto:setEstado(estadoName, framei, rate)
 
    self.estado.currentFrame_t = 0 -- timer
 
+  --print(self.estado.name)
+
 end
 
 --Se fija si el nombre del estado actual es alguno de los de la lista
 function Objeto:estaEnEstado(lista)
    return estaEn(lista, self.estado.name)
 end
+
+
+function Objeto:updateAccion(dt)
+   --print('Haciendo '.. self.estado.name)
+   self.estado:accion(dt) --si el estado actual hace algo especial, se pide acá
+end
+
 
 -- Actualiza x e y segun vel, acc, etc
 function Objeto:updatePosition(dt) 
@@ -75,6 +84,15 @@ function Objeto:ciclarFrames(dt)
    self.estado:ciclarFrames(dt)
 end
 
+
+--Lo hago asi en vez de llamar uno por uno en love.update()
+--para que otros objetos puedan overridear esta funcion agregandole mas cosas si necesitan
+function Objeto:update(dt)
+   --print(self.estado.name)
+   self:ciclarFrames(dt)
+   self:updatePosition(dt)
+   self:updateAccion(dt)
+end
 
 --Acá repensar luego, porque el orden en que se dibujan las cosas sí importa y mucho...
 -- Y tambien calcular si el personaje aparece en pantalla o no (ej "es visible")

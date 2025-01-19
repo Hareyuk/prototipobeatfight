@@ -6,18 +6,22 @@ Estado = {
          currentFrame_t = 1, --timer para pasar de frames.
          currentFrame_i = 1, --indice al frame actual.  Es floor() del timer. Por comodidad lo doy como una variable aparte
          name = '', --id para encontrarlo o accedes a él desde un personaje
-         rate = 1 --velocidad a la que cicla los frames
+         rate = 1, --velocidad a la que cicla los frames
+         accion = nil -- funcion a ser llamada durante este estado. Algunos estados piden hacer cosas especiales, eso se asigna acá. Por ej: Dash del personaje
       }
 
 --Expandir luego acá con los hitboxes y demás
 
 Estado.__index = Estado --Crea clase
 
+function nada() end 
+
 --Constructor de objeto
-function Estado:new(name, path_frames)
+function Estado:new(name, path_frames, accion)
     local self = setmetatable({}, Estado)
     self.name = name or ''
     self.frames = loadSprites(path_frames)
+    self.accion = accion or nada
   return self
 end
 

@@ -51,7 +51,9 @@ function Personaje:new(id)
    self:addEstado('IDLE', "pje/reposo/")
    self:addEstado('WALK', "pje/caminando/")
    self:addEstado('RUN',  "pje/caminando/")
-   
+   self:addEstado('DASH',  "pje/dash/", Personaje.dashear)
+
+   --Estado actual
    self:setEstado('IDLE')   
 
    self.scale = 3
@@ -72,6 +74,9 @@ function Personaje:new(id)
    self.__index = self
 
    print("Personaje creado!")
+   print(self.estados['DASH'].accion)
+   print(Personaje.dashear)
+   print(loadSprite)
 
    return self
 end
@@ -80,17 +85,25 @@ end
 function Personaje:update(dt)
 
 -- Actualizar Posición del pje (automático)
-   Objeto:updatePosition(dt)
+  -- Objeto:updatePosition(dt)
    
+   --Actualizar accion actual (ej: dash)
+   --Objeto:updateAccion(dt)
+
+   --Posicion, frame actual y acciones de estado
+   Objeto.update(self, dt)  --OJO: La sintaxis del ":" reemplazando al "self" como 1er parametro no funciona acá, por alguna razon
+
+
+   --Todo: Ver que carajo pasa que no ocurre solo con el Update de Objeto acá
+   if(self.estado.name == 'DASH') then self:dashear(dt) end
+
    --Se fija como actualizar las vars de movimiento
-   self:chequearTeclas(dt) 
-   self:actualizarEstado(dt)
-
-
+   --self:chequearTeclas(dt) 
+   --self:actualizarEstado(dt)
 
    --Limites de la pantalla
-   self.x = math.clamp(self.x,0, SCREEN_WIDTH - self.currentFrame:getWidth()*self.scale) --Se le podría agregar un "acell = 0 y vel=0" en los casos que choca, si fuera más pro
-   self.y = math.clamp(self.y,0, SCREEN_HEIGHT)
+   --self.x = math.clamp(self.x,0, SCREEN_WIDTH - self.currentFrame:getWidth()*self.scale) --Se le podría agregar un "acell = 0 y vel=0" en los casos que choca, si fuera más pro
+   --self.y = math.clamp(self.y,0, SCREEN_HEIGHT)
 
 end   
 
@@ -109,7 +122,7 @@ end
 ------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
 
 dt_RUN = 400 --ms. Tiempo maximo permitido entre dos aprietes de tecla consecutivos para empezar a correr
-dt_DASH = 400 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
+dt_DASH = 200 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
 
 
 --Recibe un "mover a la derecha"
@@ -120,17 +133,17 @@ function Personaje:comandoRightPress()
    if self:estaEnEstado({'IDLE', 'WALK', 'RUN'}) then 
       self:setEstado('WALK')
       self.velx = self.vwalk_x
-      print('WALK!')
    end
+
+   local tecla = Teclas['Pje1_right']
 
    --Veo si puedo empezar un RUN
-  --print(Teclas['Pje1_right']:calcular_dt(), Teclas['Pje1_right'].last_pressed_time)
-
-   if self:estaEnEstado({'IDLE', 'WALK', 'RUN'}) and Teclas['Pje1_right']:calcular_dt()< dt_RUN then
+   if self:estaEnEstado({'IDLE', 'WALK', 'RUN'}) and tecla:dt_last_press()< dt_RUN then
       self:setEstado('RUN')
       self.velx = self.vrun_x
-      print('RUN!!')
    end
+  --print(Teclas['Pje1_right']:calcular_dt(), Teclas['Pje1_right'].last_pressed_time)
+
 
 end
 
@@ -166,23 +179,31 @@ end
 --Recibe un "ya no se mueve a la derecha"
 function Personaje:comandoRightRelease()
    
+   local tecla = Teclas['Pje1_right']
+
    --Veo si puedo empezar un Dash
+   dt_release = tecla:dt_last_press()
+
+   if self:estaEnEstado({'RUN'}) and dt_release < dt_DASH then
+         self:dashear()
+         return
+   end
+
+
+   --Si está presionada la tecla de izq, voy para allá
+   if Teclas['Pje1_left'].isDown then self:comandoLeftPress(); return end
 
 
    --Si estoy yendo a la derecha, paro
    if self:estaEnEstado({'WALK', 'RUN'}) and self.velx > 0 then 
       self:setEstado('IDLE')
       self.velx = 0
+      return
    end
-
-   --Si está presionada la tecla de izq, voy para allá
-   if Teclas['Pje1_left'].isDown then self:comandoLeftPress() end
 
 
 
 end
-
-
 
 --Recibe un "ya no se mueve a la izquierda"
 function Personaje:comandoLeftRelease()
@@ -193,7 +214,6 @@ function Personaje:comandoLeftRelease()
 
    --Si está presionada la tecla de der, voy para allá
    if Teclas['Pje1_right'].isDown then self:comandoRightPress() end
-
 end
 
 
@@ -220,4 +240,36 @@ function Personaje:keypressed(key)
    end
 end
 
+
+dash_timer_max = 400/1000 --s
+--Acá se maneja todo el dasheo
+-- La idea es que hay un timer y que la velocidad y cuando termina el dash dependen de este timer 
+-- tambien se controla la animacion desde acá
+function Personaje:dashear(dt)
+
+   --Si entro al dash desde otro estado: Empiezo el timer
+   --Esta logica se puede rehacer, para no llamar a esta funcion en las teclas sino solo a setearEstado
+   if self.estado.name ~= 'DASH' then
+      self:setEstado('DASH')
+      self.dash_timer = 0
+      self.scale = 1
+      return
+   end
+
+   --Si el dash terminó: vuelvo a Idle
+   if self.dash_timer >= dash_timer_max then
+      self:setEstado('IDLE')
+      self.scale = 3
+      return
+   end
+
+   self.velx = dash_vt(self.dash_timer)
+   self.dash_timer = self.dash_timer + dt
+
+end 
+
+--v(t) para el dash
+function dash_vt(t)
+   return 2000*math.sqrt(-t*(t-dash_timer_max))
+end
 
