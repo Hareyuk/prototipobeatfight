@@ -35,6 +35,6 @@ end
 
 
 
-function Estado:getCurrentFrame()
+function Estado:getFrameActual()
    return self.frames[self.currentFrame_i] --Ojo que es un objeto y no una imagen.
 end

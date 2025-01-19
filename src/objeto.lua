@@ -88,7 +88,7 @@ end
 --Todo revisar lo de las escalas, se recontra rompe 
 function Objeto:mostrarBox(boxtype) --muestra uno de los tres tipos de hitbox, con su color y todo
 
-   local frame = self:getCurrentFrame()
+   local frame = self:getFrameActual()
    local box = frame[boxtype] --esto es como hacer frame.hurtbox y asi. Sintaxis rota
 
    if not box then return end --si no hay hitbox aca se acabo la joda
@@ -101,8 +101,8 @@ function Objeto:mostrarBox(boxtype) --muestra uno de los tres tipos de hitbox, c
    elseif (boxtype == 'collisionbox') then  love.graphics.setColor(0,1,0, alpha)
    end
 
-   print(box.x, box.y, box.w, box.h)
-   print(self.x + box.x*self.scale, self.y + box.y*self.scale, box.w*self.scale, box.h*self.scale)
+   --print(box.x, box.y, box.w, box.h)
+   --print(self.x + box.x*self.scale, self.y + box.y*self.scale, box.w*self.scale, box.h*self.scale)
 
    love.graphics.rectangle('fill', self.x + box.x*self.scale
                                  , self.y + box.y*self.scale
@@ -145,7 +145,7 @@ function Objeto:drawFrame()
 
    --love.graphics.scale(self.scale)
 
-   local sp = self:getCurrentFrame().imagen --sprite a dibujar, es una imagen
+   local sp = self:getFrameActual().imagen --sprite a dibujar, es una imagen
    local w = sp:getWidth() * self.scale
    local h = sp:getHeight() * self.scale
 
@@ -207,7 +207,7 @@ function Objeto:mostrarCoords()
 
    end
 
-   --local hbox = self.estado:getCurrentFrame().hitbox 
+   --local hbox = self.estado:getFrameActual().hitbox 
    --if hbox then hbox:mostrarCoords() end
 
    love.graphics.pop()
@@ -217,6 +217,52 @@ end
 
 
 --Devuelve el objeto Frame actual
-function Objeto:getCurrentFrame()
-   return self.estado:getCurrentFrame()
+function Objeto:getFrameActual()
+   return self.estado:getFrameActual()
 end 
+
+
+-------------------------------------- DETECCION DE COLISIONES -- LOGICA
+
+
+--La idea es: Un objeto con frame de hit se fija si está chocando a otro objeto con frame de hurt
+--TODO: sacar los scales y chau. Es un quilombo trabajar siempre con eso
+--Si está hiteando, envía la información del hit a ambos objetos
+function Objeto:checkEstaHiteando(otroObjeto)
+      
+   local htbox = self:getFrameActual().hitbox 
+
+   if htbox then -- este chequeo se supone que es redundante, porque ya lo hice antes de llamar. Puede volar
+      local hurtbox = otroObjeto:getFrameActual().hurtbox
+      if hurtbox then
+         return chequearColision(htbox.x*self.scale + self.x,
+                                 htbox.y*self.scale + self.y,
+                                 htbox.w*self.scale,
+                                 htbox.y*self.scale,
+                                 hurtbox.x*otroObjeto.scale + otroObjeto.x,
+                                 hurtbox.y*otroObjeto.scale + otroObjeto.y,
+                                 hurtbox.w*otroObjeto.scale,
+                                 hurtbox.y*otroObjeto.scale
+                                 )
+      end
+   end
+
+   return false
+end
+
+function Objeto:checkHit(otroObjeto)
+
+   if not self:checkEstaHiteando(otroObjeto) then return end
+
+   print('Ataque de ' ..self.name .. ' a '..otroObjeto.name)
+
+end
+
+
+function Objeto:checkMovt(otroObjeto)
+
+   if not false then return end
+
+   print('Solapamiento de ' ..self.name .. ' a '..otroObjeto.name)
+
+end

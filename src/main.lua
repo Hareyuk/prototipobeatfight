@@ -91,9 +91,30 @@ function love.draw()
 
    for _, objeto in ipairs(objetos) do
       objeto:drawFrame()
-      --objeto:mostrarHurtbox()
+      objeto:mostrarHurtbox()
       objeto:mostrarCollisionbox()
       objeto:mostrarHitbox()
+
+
+      --DETECTOR DE COLISIONES DE HITS
+      --Si el objeto está intentando hitear, veo su hitbox contra todo lo golpeable
+      if objeto:getFrameActual().hitbox then
+         for _, otroObjeto in ipairs(objetos) do
+            if objeto ~= otroObjeto then 
+               objeto:checkHit(otroObjeto)
+            end 
+         end
+      end
+
+      --DETECTOR DE COLISIONES DE MOVIMIENTO
+      --Si el objeto está intentando moverse, veo su collisionbox contra todos los demas
+      if objeto:getFrameActual().collisionbox then
+         for _, otroObjeto in ipairs(objetos) do
+            if objeto ~= otroObjeto then 
+               objeto:checkMovt(otroObjeto) 
+            end
+         end
+      end
 
    end
    
