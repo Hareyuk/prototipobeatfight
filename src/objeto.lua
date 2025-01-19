@@ -84,22 +84,30 @@ function Objeto:ciclarFrames(dt)
    self.estado:ciclarFrames(dt)
 end
 
-function Objeto:mostrarBox(boxtype)
 
-   local frame = self.estado:getCurrentFrame()
-   local box = frame[boxtype]
+--Todo revisar lo de las escalas, se recontra rompe 
+function Objeto:mostrarBox(boxtype) --muestra uno de los tres tipos de hitbox, con su color y todo
+
+   local frame = self:getCurrentFrame()
+   local box = frame[boxtype] --esto es como hacer frame.hurtbox y asi. Sintaxis rota
 
    if not box then return end --si no hay hitbox aca se acabo la joda
 
-   love.graphics.push()
+   love.graphics.push('all')
 
-   local alpha = 0.3
+   local alpha = 0.8
    if(boxtype == 'hitbox') then love.graphics.setColor(1,0,0, alpha)
    elseif (boxtype == 'hurtbox') then love.graphics.setColor(0,0,1, alpha)
    elseif (boxtype == 'collisionbox') then  love.graphics.setColor(0,1,0, alpha)
    end
 
-   love.graphics.rectangle('line', self.x + box.x, self.y + box.y, box.w*self.scale, box.h *self.scale) 
+   print(box.x, box.y, box.w, box.h)
+   print(self.x + box.x*self.scale, self.y + box.y*self.scale, box.w*self.scale, box.h*self.scale)
+
+   love.graphics.rectangle('fill', self.x + box.x*self.scale
+                                 , self.y + box.y*self.scale
+                                 , box.w*self.scale
+                                 , box.h*self.scale) 
    
    love.graphics.pop()
 end
@@ -114,13 +122,13 @@ function Objeto:mostrarHurtbox()
 end
 
 function Objeto:mostrarCollisionbox()
-    self:mostrarBox('collissionbox')
+    self:mostrarBox('collisionbox')
 end
 
 --Lo hago asi en vez de llamar uno por uno en love.update()
 --para que otros objetos puedan overridear esta funcion agregandole mas cosas si necesitan
 function Objeto:update(dt)
-   print('Haciendo update de ' .. self.name, 'estado '.. self.estado.name)
+   --print('Haciendo update de ' .. self.name, 'estado '.. self.estado.name)
    self:ciclarFrames(dt)
    self:updatePosition(dt)
    self:updateAccion(dt)
@@ -130,13 +138,21 @@ end
 -- Y tambien calcular si el personaje aparece en pantalla o no (ej "es visible")
 function Objeto:drawFrame()
 
-   print('Dibujando '.. self.name ..' | frame de estado ' .. self.estado.name)
+   --print('Dibujando '.. self.name ..' | frame de estado ' .. self.estado.name)
    if(not self:esVisible()) then return end 
+
+   love.graphics.push('all')
+
+   --love.graphics.scale(self.scale)
 
    local sp = self:getCurrentFrame().imagen --sprite a dibujar, es una imagen
    local w = sp:getWidth() * self.scale
    local h = sp:getHeight() * self.scale
 
+   --local w = sp:getWidth() 
+   --local h = sp:getHeight()
+
+   
    --El pje mira hacia la derecha o acelera a la derecha
    if self.orientacionX == Orientaciones.DERECHA  then
       drawImage(sp, self.x, self.y, w, h, 0,0)
@@ -152,6 +168,7 @@ function Objeto:drawFrame()
       self:mostrarCoords()
       end
 
+   love.graphics.pop()
 
 end
 
@@ -165,6 +182,11 @@ end
 --Muestra las coordenadas propias en pantalla para mayor comodidad
 function Objeto:mostrarCoords()
 
+
+   love.graphics.push('all')
+
+   --love.graphics.translate(self.x, self.y)
+   --love.graphics.scale(self.scale)
 
    love.graphics.setFont(fontDebug)
 
@@ -185,9 +207,10 @@ function Objeto:mostrarCoords()
 
    end
 
-   local hbox = self.estado:getCurrentFrame().hitbox 
-   if hbox then hbox:mostrarCoords() end
+   --local hbox = self.estado:getCurrentFrame().hitbox 
+   --if hbox then hbox:mostrarCoords() end
 
+   love.graphics.pop()
 
    return
 end

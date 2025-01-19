@@ -62,6 +62,7 @@ function love.keypressed(key)
    comando = mapaTeclas_multiplayer[key]
 
    local tecla = Teclas[key]
+   if not tecla then return end -- Si no es una tecla que me interese, salgo
 
    tecla.isDown = true
 
@@ -96,8 +97,12 @@ end
 
 
 function love.keyreleased(key)
+   
+   local tecla = Teclas[key]
+   if not tecla then return end -- Si no es una tecla que me interese, salgo
 
-   Teclas[key].isDown = false
+
+   tecla.isDown = false
    comando = mapaTeclas_multiplayer[key]
 
    if      comando == 'Pje1_right' then

@@ -91,9 +91,10 @@ function love.draw()
 
    for _, objeto in ipairs(objetos) do
       objeto:drawFrame()
-      --objeto:mostrarCollisionbox()
-      objeto:mostrarHitbox()
       --objeto:mostrarHurtbox()
+      objeto:mostrarCollisionbox()
+      objeto:mostrarHitbox()
+
    end
    
   --[[

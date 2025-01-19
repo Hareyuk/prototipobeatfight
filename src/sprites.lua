@@ -35,25 +35,12 @@ function Box:new(x,y,w,h)
 end
 
 --Muestra las coordenadas propias en pantalla para mayor comodidad
+--[[   Mala idea xq su pos está atada a la de su personaje y no referencio eso por ahora
 function Box:mostrarCoords()
-
-   love.graphics.setFont(fontDebug)
-
-   local x = string.format("%.2f", self.x)
-   local y = string.format("%.2f", self.y)
-   local w = string.format("%.2f", self.w)
-   local h = string.format("%.2f", self.h)
-
-   local coords = "x: " .. x .. "\ny: " .. y .. "\nw: " .. w .. "\nh: " .. h 
-   local color_texto = {235/255,20/255,20/255} --rojo
-   local limite_pix = 350 --limite antes del wrap
-   local pos = love.math.newTransform(self.x, self.y) -- x e y
-   love.graphics.printf( {color_texto,coords} , pos, limite_pix, "left" )  
-
 
    return
 end
-
+]]
 ----------------------- FRAME: Tiene imagen y hasta 3 boxes adentro
 
 Frame = {
@@ -115,7 +102,7 @@ function cargarFramesYHitboxes(carpeta)
       if w and h then frame.hurtbox = Box:new(x,y,w,h) ; print('Hurtbox aca') end
 
       x,y,w,h = getXYWH(collisions_imgs[i])
-      if w and h then frame.hurtbox = Box:new(x,y,w,h) ; print('Collisionbox aca') end
+      if w and h then frame.collisionbox = Box:new(x,y,w,h) ; print('Collisionbox aca') end
     end
 
     print( carpeta .. ' leida')
@@ -133,23 +120,33 @@ function getXYWH(img)
     local W = img:getWidth()
     local H = img:getHeight()
 
-    local x, y, w, h = W, H, 0, 0 
+    --local x, y, w, h = W, H, 0, 0 
+    local x, y, x2,y2 = W,H,0, 0
     local umbral = 0.5 --umbral de "energia" para ver si un pixel está encendido
 
-    for c = 0, W-1, 10 do -- columna
-      for f = 0, H-1, 10 do -- fila
-        local r, g, b, a = img:getPixel(f, c)  --acá si indexa de 0 a N-1 ....
+    local step = 2
+    --Primero busco los vertices sup izq e inf der
+    for c = 0, W-1, step do -- columna
+      for f = 0, H-1, step do -- fila
+        local r, g, b, a = img:getPixel(c, f)  --acá si indexa de 0 a N-1 ....
         --print('x:',c,' y :', f ,': ' , r,g,b,a)
          --if(r^2 + g^2 + b^2  > umbral) then
-           if(a > umbral) then
-            x = math.min(x, c)
-            y = math.min(y, f)
-            w = math.max(w, c-x)
-            h = math.max(h, f-y)
+            if(a > umbral) then --Acá estoy dentro del hitbox
+             x = math.min(x, c)
+             y = math.min(y, f)
+             x2 = math.max(x2, c)
+             y2 = math.max(y2, f)
+          end
          end
       end
-   end
-   print(x,y,w,h)
+
+   --print(x,y,x2,y2)
+   --Y ahora calculo el ancho y alto (se... carisimo... dos pasadas. Pero bueno)
+
+    w = x2-x
+    h = y2-y
+
+   --print(x,y,w,h)
    return x,y,w,h
 end
 

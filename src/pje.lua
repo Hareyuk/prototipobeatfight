@@ -48,12 +48,9 @@ dash_timer_max = 300/1000 --s  tiempo que dura el dasheo
 --Constructor
 function Personaje:new(id)
    print("Creando personaje: " .. id)
+
    local self = Objeto:new('Personaje '.. id)
-   setmetatable(self, {__index = Personaje}) --Crea una instancia de objeto. Asi tiene coord x, y, etc
-
-
-
-   --local self = setmetatable(Objeto:new('Personaje ' .. id), Personaje) --Crea una instancia de objeto. Asi tiene coord x, y, etc
+   setmetatable(self, {__index = Personaje}) --Crea una instancia de objeto
 
    --SPRITES
    self:addEstado('IDLE', "pje/reposo/")
@@ -96,18 +93,9 @@ end
 
 function Personaje:update(dt)
 
--- Actualizar Posición del pje (automático)
-  -- Objeto:updatePosition(dt)
-   
-   --Actualizar accion actual (ej: dash)
-   --Objeto:updateAccion(dt)
-
    --Posicion, frame actual y acciones de estado
    Objeto.update(self, dt)  --OJO: La sintaxis del ":" reemplazando al "self" como 1er parametro no funciona acá, por alguna razon
 
-
-   --Todo: Ver que carajo pasa que no ocurre solo con el Update de Objeto acá
-   --if(self.estado.name == 'DASH') then self:dashear(dt) end
 
    --Se fija como actualizar las vars de movimiento
    --self:chequearTeclas(dt) 

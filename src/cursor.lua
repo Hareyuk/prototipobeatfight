@@ -37,11 +37,10 @@ end
 
 --Override la de la clase Objeto
 function Cursor:updatePosition(dt)
-   print('Update position cursor')
    self.x, self.y = camera:mousePosition() 
 end
 
 function Cursor:cambiarCursor()
-   self.cursor_i = (self.cursor_i % #self.sprites)  + 1
-   self.currentStateFrames = self.sprites[self.cursor_i] --Esto es identico al codigo y logica de cambiar fondo, podria reciclarse la verdad.
+   --self.cursor_i = (self.cursor_i % #self.sprites)  + 1
+   --self.currentStateFrames = self.sprites[self.cursor_i] --Esto es identico al codigo y logica de cambiar fondo, podria reciclarse la verdad.
 end  
