@@ -84,11 +84,43 @@ function Objeto:ciclarFrames(dt)
    self.estado:ciclarFrames(dt)
 end
 
+function Objeto:mostrarBox(boxtype)
+
+   local frame = self.estado:getCurrentFrame()
+   local box = frame[boxtype]
+
+   if not box then return end --si no hay hitbox aca se acabo la joda
+
+   love.graphics.push()
+
+   local alpha = 0.3
+   if(boxtype == 'hitbox') then love.graphics.setColor(1,0,0, alpha)
+   elseif (boxtype == 'hurtbox') then love.graphics.setColor(0,0,1, alpha)
+   elseif (boxtype == 'collisionbox') then  love.graphics.setColor(0,1,0, alpha)
+   end
+
+   love.graphics.rectangle('line', self.x + box.x, self.y + box.y, box.w*self.scale, box.h *self.scale) 
+   
+   love.graphics.pop()
+end
+
+
+function Objeto:mostrarHitbox()
+   self:mostrarBox('hitbox')
+end
+
+function Objeto:mostrarHurtbox()
+   self:mostrarBox('hurtbox')
+end
+
+function Objeto:mostrarCollisionbox()
+    self:mostrarBox('collissionbox')
+end
 
 --Lo hago asi en vez de llamar uno por uno en love.update()
 --para que otros objetos puedan overridear esta funcion agregandole mas cosas si necesitan
 function Objeto:update(dt)
-   --print(self.estado.name)
+   print('Haciendo update de ' .. self.name, 'estado '.. self.estado.name)
    self:ciclarFrames(dt)
    self:updatePosition(dt)
    self:updateAccion(dt)
@@ -98,9 +130,10 @@ end
 -- Y tambien calcular si el personaje aparece en pantalla o no (ej "es visible")
 function Objeto:drawFrame()
 
+   print('Dibujando '.. self.name ..' | frame de estado ' .. self.estado.name)
    if(not self:esVisible()) then return end 
 
-   local sp = self.estado.frames[self.estado.currentFrame_i] --sprite a dibujar, es una imagen
+   local sp = self:getCurrentFrame().imagen --sprite a dibujar, es una imagen
    local w = sp:getWidth() * self.scale
    local h = sp:getHeight() * self.scale
 
@@ -148,11 +181,19 @@ function Objeto:mostrarCoords()
       local pos = love.math.newTransform(self.x, self.y) -- x e y
       love.graphics.printf( {color_texto,coords} , pos, limite_pix, "left" )  
 
-
    else --Las muestra abajo en un lugar fijo de la pantalla
-
 
    end
 
+   local hbox = self.estado:getCurrentFrame().hitbox 
+   if hbox then hbox:mostrarCoords() end
+
+
    return
 end
+
+
+--Devuelve el objeto Frame actual
+function Objeto:getCurrentFrame()
+   return self.estado:getCurrentFrame()
+end 
