@@ -36,7 +36,9 @@ mapaTeclas_multiplayer = {
 	left  =	'Pje1_left',  --tecla izquierda
 	up    =	'Pje1_up',
 	down  = 'Pje1_down', 
-   z = 'Pje1_atk1'
+   z = 'Pje1_atk1',
+   s = 'Pje1_grow',
+   a = 'Pje1_shrink'
 }
 
 --La hago bidireccional, asi puedo hacer que los objetos chequeen si algo está presionado tambien 
@@ -97,7 +99,7 @@ end
 
 
 function love.keyreleased(key)
-   
+
    local tecla = Teclas[key]
    if not tecla then return end -- Si no es una tecla que me interese, salgo
 

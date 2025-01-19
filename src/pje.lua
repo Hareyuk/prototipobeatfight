@@ -105,6 +105,9 @@ function Personaje:update(dt)
    --self.x = math.clamp(self.x,0, SCREEN_WIDTH - self.currentFrame:getWidth()*self.scale) --Se le podría agregar un "acell = 0 y vel=0" en los casos que choca, si fuera más pro
    --self.y = math.clamp(self.y,0, SCREEN_HEIGHT)
 
+   if Teclas['Pje1_grow'].isDown then self.scale = self.scale + 2*dt end
+   if Teclas['Pje1_shrink'].isDown then self.scale = self.scale - 2*dt end
+
 end   
 
 function Personaje:chequearTeclas(dt)
