@@ -270,10 +270,11 @@ function Objeto:checkMvtColl(otroObjeto)
    if not Objeto:haySolapamiento(self, collbox1, otroObjeto, collbox2) then return end
 
    --Else: Sí hay solapamiento. Les digo a los dos objetos que no pueden moverse
+   --Todo: Luego hay condiciones como "está en estado idle" o cosas así
    self:noMover()
    otroObjeto:noMover()
 
-   print('Solapamiento de ' ..self.name .. ' a '..otroObjeto.name)
+   print('Solapamiento de ' ..self.name .. ' a '..otroObjeto.name .. ' en t = ' ..  love.timer.getTime())
 
 end
 

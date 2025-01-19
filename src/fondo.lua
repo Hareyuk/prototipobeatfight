@@ -58,3 +58,29 @@ function Fondo:draw()
    drawImage(Fondo.currentFrame, 0, 0, WIDTH, HEIGHT)
    love.graphics.setColor(r,g,b,a) --Restauro colores originales
 end
+
+
+
+--------------------------- OBJETOS DE ESCENARIO   ----------------------------
+
+
+Columna = setmetatable({}, Objeto)  -- Y esto es por si quiero heredar propiamente la clase y crear una nueva
+Columna.__index = Columna
+
+function Columna:new(x, y)
+
+   print("Creando columna")
+   --local self = setmetatable(Objeto:new('Cursor'), Cursor) --Crea una instancia de objeto. Asi tiene coord x, y, etc
+   local self = Objeto:new('Columna')
+   setmetatable(self, {__index = Columna}) --Crea una instancia de objeto. Asi tiene coord x, y, etc
+
+
+   self:addEstado('Idle', 'col_rota/')
+
+   self:setEstado('Idle')
+
+   self.x, self.y = x,y
+
+   return self
+
+end

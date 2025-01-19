@@ -1,7 +1,7 @@
 --cursor = Objeto:new('cursor')  -- Esto está bien, como va a haber siempre una unica instancia de Cursor puede ir esto
 
 Cursor = setmetatable({}, Objeto)  -- Y esto es por si quiero heredar propiamente la clase y crear una nueva
-Cursor.__index = Personaje
+Cursor.__index = Cursor
 
 require "objeto" --funciones de sprites generales
 --No usa todo, como vx, vy, esas cosas, solo pos

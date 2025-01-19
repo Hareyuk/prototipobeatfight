@@ -36,11 +36,13 @@ function love.load()
    --Fondo:crear()
    cursor = Cursor:crear()
    pje1 = Personaje:new(1)
+   columna = Columna:new(200, 100)
    crearTextos()
    crearTextosDebug()
 
    table.insert(objetos, pje1)
    table.insert(objetos, cursor)
+   table.insert(objetos, columna)
 
    cargarMusica()
 
@@ -71,8 +73,31 @@ function love.update(dt)
 
    --fondo:update(dt)
 
-   for _, objeto in ipairs(objetos) do
+   for i_obj, objeto in ipairs(objetos) do
+
+      --Calculo de nuevas posiciones, actualizacion de estados, teclas presionadas, etc
       objeto:update(dt)
+
+       --DETECTOR DE COLISIONES DE HITS
+      --Si el objeto está intentando hitear, veo su hitbox contra todo lo golpeable
+      if objeto:getFrameActual().hitbox then
+         for _, otroObjeto in ipairs(objetos) do
+            if objeto ~= otroObjeto then 
+               objeto:checkHit(otroObjeto)
+            end 
+         end
+      end
+
+      --DETECTOR DE COLISIONES DE MOVIMIENTO
+      --Si el objeto está intentando moverse, veo su collisionbox contra todos los demas
+      if objeto:getFrameActual().collisionbox then
+         for j_obj, otroObjeto in ipairs(objetos) do
+            if j_obj > i_obj then --Para no repetir los chequeos acá, pido esta condicion 
+               objeto:checkMvtColl(otroObjeto) 
+            end
+         end
+      end
+
    end
 
 
@@ -89,32 +114,16 @@ function love.draw()
 
    love.graphics.setBackgroundColor( 0.5, 0.5,0.5 , 1 )
 
+   --Por ultimo, una vez que ya calculé y acomodé todo, así sí... dibujo!!   
    for i_obj, objeto in ipairs(objetos) do
+      
       objeto:drawFrame()
+
       objeto:mostrarHurtbox()
       objeto:mostrarCollisionbox()
       objeto:mostrarHitbox()
+      
 
-
-      --DETECTOR DE COLISIONES DE HITS
-      --Si el objeto está intentando hitear, veo su hitbox contra todo lo golpeable
-      if objeto:getFrameActual().hitbox then
-         for _, otroObjeto in ipairs(objetos) do
-            if objeto ~= otroObjeto then 
-               objeto:checkHit(otroObjeto)
-            end 
-         end
-      end
-
-      --DETECTOR DE COLISIONES DE MOVIMIENTO
-      --Si el objeto está intentando moverse, veo su collisionbox contra todos los demas
-      if objeto:getFrameActual().collisionbox then
-         for j_obj, otroObjeto in ipairs(objetos) do
-            if j_obj >= i_obj then --Para no repetir los chequeos acá, pido esta condicion 
-               objeto:checkMvtColl(otroObjeto) 
-            end
-         end
-      end
 
    end
    
