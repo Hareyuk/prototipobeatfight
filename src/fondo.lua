@@ -43,8 +43,6 @@ end
    
 
 function Fondo:draw()
-   print(self.name)
-   print(self.estado.name)
    drawImage(self:getFrameActual().imagen, 0, 0, 2*SCREEN_WIDTH, 2*SCREEN_HEIGHT)
 end
 
