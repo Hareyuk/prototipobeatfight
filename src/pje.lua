@@ -153,50 +153,37 @@ function Personaje:update(dt)
 
 end   
 
+--Asigno velocidad y sprites cuando camino y corro según las teclas que estén pulsadas
+--Esto resume las tres funciones de "movimiento logica 1.txt" de demo
+--Todo falta asignas sprites
+function Personaje:chequearVelocidadDeMovimiento(vx, vy)
 
---Asigno velocidad y sprites cuando camino
-function Personaje:chequearTeclasMovimientoWalk()
    self.velx = 0
    self.vely = 0
 
 
-   if Teclas['Pje1_right'].isDown then self.velx = self.velx + self.vwalk_x end
-   if Teclas['Pje1_left'].isDown then self.velx = self.velx - self.vwalk_x end
-   if Teclas['Pje1_up'].isDown then self.vely = self.vely - self.vwalk_y end
-   if Teclas['Pje1_down'].isDown then self.vely = self.vely + self.vwalk_y end
+   if Teclas['Pje1_right'].isDown then self.velx = self.velx + vx end
+   if Teclas['Pje1_left'].isDown then self.velx = self.velx - vx end
+   if Teclas['Pje1_up'].isDown then self.vely = self.vely - vy end
+   if Teclas['Pje1_down'].isDown then self.vely = self.vely + vy end
 
-   --Todo normalizar
+   --Todo normalizar segun walk o run
    return
+
+end
+
+function Personaje:chequearTeclasMovimientoWalk()
+   self:chequearVelocidadDeMovimiento(self.vwalk_x, self.vwalk_y)
 end
 
 --Asigno velocidad y sprites cuando corro horizontal
 function Personaje:chequearTeclasMovimientoRunX()
+   self:chequearVelocidadDeMovimiento(self.vrun_x, self.vwalk_y)
+ end
 
-   self.velx = 0
-   self.vely = 0
-
-   if Teclas['Pje1_right'].isDown then self.velx = self.velx + self.vrun_x end
-   if Teclas['Pje1_left'].isDown then self.velx = self.velx - self.vrun_x end
-   if Teclas['Pje1_up'].isDown then self.vely = self.vely - self.vwalk_y end
-   if Teclas['Pje1_down'].isDown then self.vely = self.vely + self.vwalk_y end
-
-   --Todo normalizar
-   return
-end
-
---Asigno velocidad y sprites cuando corro horizontal
+--Asigno velocidad y sprites cuando corro vertical
 function Personaje:chequearTeclasMovimientoRunY()
-
-   self.velx = 0
-   self.vely = 0
-
-   if Teclas['Pje1_right'].isDown then self.velx = self.velx + self.vwalk_x end
-   if Teclas['Pje1_left'].isDown then self.velx = self.velx - self.vwalk_x end
-   if Teclas['Pje1_up'].isDown then self.vely = self.vely - self.vrun_y end
-   if Teclas['Pje1_down'].isDown then self.vely = self.vely + self.vrun_y end
-
-   --Todo normalizar
-   return
+   self:chequearVelocidadDeMovimiento(self.vwalk_x, self.vun_y)
 end
 
 ------------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
