@@ -17,6 +17,7 @@ end
 
 -----------------------BOX
 
+--Coordenadas relativas al (x,y) del frame padre
 Box = {
    x = nil,
    y = nil,

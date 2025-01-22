@@ -113,6 +113,9 @@ end
 
 --IMPORTANTISIMO: SE REDIBUJA TODO DESDE CERO CADA FRAME. ASí QUE NADA DE OPTIMIZAR EN ESTE FRAMWORK
 -- if you call any of the love.graphics.draw outside of this function then it's not going to have any effect.  
+
+--Logica : Para pje1, Primero se calculan las velocidades en el update
+--Luego, en draw se dibuja el sprite
 function love.draw()
 
    camera:set() --Start looking through the camera.

@@ -68,6 +68,10 @@ function Personaje:new(id)
    self.scale = 3
    self.rate = 5 -- rate de ciclado de sprites
 
+   --Agrego colisiones con código
+   self:addCollisionBoxPies()
+
+
    --STATUS
    self.orientacionX = Orientaciones.DERECHA
 
@@ -88,15 +92,35 @@ function Personaje:new(id)
 
 
    print("Personaje creado!")
-   print(self.estados['DASH'].accion)
-   --print(Personaje.dashear)
-   --print(loadSprite)
 
    return self
 end
 
+--Agrego colisiones en los pies
+--Todo ver por qué pinga self.estados es siempre tabla vacía
+function Personaje:addCollisionBoxPies()
+
+   local w0 = self:getFrameActual().imagen:getWidth()*self.scale
+   local h0 = self:getFrameActual().imagen:getHeight()*self.scale
+
+   local pie_x, pie_w = w0*0.1, w0*0.1
+   local pie_y, pie_h = h0*0.2, h0*0.1
+
+   print('\n\n\n\n' .. ' ' .. pie_x .. ' ' .. ' '.. pie_y .. ' ' ..  pie_w ..' '.. pie_h)
+   print(h)
+   print(self:getFrameActual().imagen:getWidth())
+   for i, estado in pairs(self.estados) do
+      for j, frame in pairs(estado.frames) do
+         frame.collisionbox = Box:new(pie_x, pie_y, pie_w,  pie_h)
+      end
+   end
+
+   return
+end
+
 
 --TODO todos los chequeos de teclas tienen que indexarse de otra manera
+
 function Personaje:update(dt)
 
    --Posicion, frame actual y acciones de estado
@@ -161,7 +185,6 @@ function Personaje:chequearVelocidadDeMovimiento(vx, vy)
    self.velx = 0
    self.vely = 0
 
-
    if Teclas['Pje1_right'].isDown then self.velx = self.velx + vx end
    if Teclas['Pje1_left'].isDown then self.velx = self.velx - vx end
    if Teclas['Pje1_up'].isDown then self.vely = self.vely - vy end
@@ -183,7 +206,7 @@ function Personaje:chequearTeclasMovimientoRunX()
 
 --Asigno velocidad y sprites cuando corro vertical
 function Personaje:chequearTeclasMovimientoRunY()
-   self:chequearVelocidadDeMovimiento(self.vwalk_x, self.vun_y)
+   self:chequearVelocidadDeMovimiento(self.vwalk_x, self.vrun_y)
 end
 
 ------------------------------  COMANDOS MOVIMIENTO ---------------------------------------------

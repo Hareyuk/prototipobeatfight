@@ -91,9 +91,12 @@ end
 --para que otros objetos puedan overridear esta funcion agregandole mas cosas si necesitan
 function Objeto:update(dt)
    --print('Haciendo update de ' .. self.name, 'estado '.. self.estado.name)
-   self:ciclarFrames(dt)
    self:updatePosition(dt)
    self:updateAccion(dt)
+   self:ciclarFrames(dt)
+
+
+
 end
 
 
@@ -239,7 +242,7 @@ function Objeto:haySolapamiento(obj1, box1, obj2, box2)
    return chequearColision(box1.x*obj1.scale + obj1.x,
                            box1.y*obj1.scale + obj1.y,
                            box1.w*obj1.scale,
-                           box1.y*obj1.scale,
+                           box1.h*obj1.scale,
                            box2.x*obj2.scale + obj2.x,
                            box2.y*obj2.scale + obj2.y,
                            box2.w*obj2.scale,
