@@ -6,10 +6,19 @@ end
 
 
 
---Ver si elem está en la tabla
+--Ver si elem está en la tabla (mira IMAGENES)
 function estaEn(tabla, elem)
  for _, value in pairs(tabla) do
     if value == elem then
+      return true
+    end
+  end
+  return false
+end
+
+function esClave(elem, tabla)
+ for key, _ in pairs(tabla) do
+    if key == elem then
       return true
     end
   end

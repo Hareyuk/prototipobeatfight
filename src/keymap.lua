@@ -14,6 +14,7 @@ Tecla.__index = Tecla --Crea clase
 function Tecla:new(name)
 	local self = setmetatable({}, Tecla)
     self.name = name or ''
+    self.padre = nil -- instancia de Personaje. Cuando se apriete una tecla, se va a llamar a una funcion del personaje
  	return self
 end
 
@@ -23,7 +24,6 @@ function Tecla:dt_last_press()
 	return dtiempo*1000 --tiempo en ms
 end
 
-Teclas = {}
 
 ----------------------------------------------------------------------------------------------------
 --Acá se definen los mapeos de keys para los controles.
@@ -31,56 +31,86 @@ Teclas = {}
 --Basicamente la idea es que iternamente hay un "Comando de derecha", "Comando de izquierda", "Comando de ataque,
 -- y que mapeamos cada tecla del input a uno de estos comandos
 
-mapaTeclas_multiplayer = {
-	right =	'Pje1_right', --tecla derecha
-	left  =	'Pje1_left',  --tecla izquierda
-	up    =	'Pje1_up',
-	down  = 'Pje1_down', 
-   z = 'Pje1_atk1',
-   s = 'Pje1_grow',
-   a = 'Pje1_shrink'
+--Primero me hago una unica tabla que tenga todas las teclas que reconozco, y a que jugador le pertenecen
+Keybindings = {
+
+   --Personaje 1
+   right =  {'right', 1}, --tecla derecha
+   left  =  {'left', 1},  --tecla izquierda
+   up    =  {'up', 1},
+   down  = {'down', 1}, 
+   z = {'atk1', 1},
+   ['1'] = {'grow', 1},
+   ['2'] = {'shrink', 1},
+
+   --Personaje 2
+   d =  {'right', 2}, --tecla derecha
+   a  =  {'left', 2},  --tecla izquierda
+   w    =  {'up', 2},
+   s  = {'down', 2}, 
+   f = {'atk1', 2},
+   x = {'grow', 2},
+   c = {'shrink', 2}
 }
 
---La hago bidireccional, asi puedo hacer que los objetos chequeen si algo está presionado tambien 
-for key, value in pairs(mapaTeclas_multiplayer) do
-	mapaTeclas_multiplayer[value] = key
-	Teclas[key] = Tecla:new(key)
-	Teclas[value] = Teclas[key] --Mayor comodidad de poder referirse a la tecla segun la tecla real y el comando que se ejecutó
+
+
+mapaTeclas_P1 = {}
+mapaTeclas_P2 = {}
+
+--Ahora, creo un objeto Tecla por cada tecla, y le asigno al mapa de cada jugador lo que le corresponde
+--Esto lo podria haber hecho directamente al definir mapa_p1 y mapa_p2, PERO estaba muy keen en tener 'right' como nombre de comando.
+--Asi que esta fue la solucion mas "tranqui"
+--El MALABAR GIGANTE que hubo que hacer por ese capricho no tiene nombre.... alcanzaba con renombrar el comando "right" a "p_right"... pero bueno...
+
+Teclas = {}
+--La motivacion es que esto me permite luego hacer Personaje.teclas['saltar'] --> devuelve la Tecla para ese comando
+for key, command in pairs(Keybindings) do
+
+   Teclas[key] = Tecla:new(key)
+
+   if command[2] == 1 then mapaTeclas_P1[command[1]] = Teclas[key] end
+   if command[2] == 2 then mapaTeclas_P2[command[1]] = Teclas[key] end
 end
 
 
---Descartar por ahi
-mapaTeclas_singleplayer = {
-	right = 'Pje2_right', --tecla derecha
-	left  = 'Pje2_left'  --tecla izquierda
-}
 
+--Asigno keybidings de teclas (comandos) a funciones de personaje.
+comandos = {}
+
+comandos['right'] = Personaje.comandoRightPress
+comandos['left'] = Personaje.comandoLeftPress
+comandos['up'] = Personaje.comandoUpPress
+comandos['down'] = Personaje.comandoDownPress
+comandos['atk1'] = nil
+comandos['grow'] = nil
+comandos['shrink'] = nil
+
+
+--Para cuando se suelta la tecla. Ocasional, solo para movimiento creo
+comandos_release = {}
+comandos_release['right'] = Personaje.comandoRightRelease
+comandos_release['left'] = Personaje.comandoLeftRelease
+comandos_release['up'] = Personaje.comandoUpRelease
+comandos_release['down'] = Personaje.comandoDownRelease
+comandos_release['atk1'] = nil
 
 ---------------------------------------------------------------------------------
 
 --This function is called whenever a keyboard key is pressed and receives the key that was pressed. The key can be any of the constants. 
 function love.keypressed(key)
 
-   comando = mapaTeclas_multiplayer[key]
 
    local tecla = Teclas[key]
    if not tecla then return end -- Si no es una tecla que me interese, salgo
 
    tecla.isDown = true
 
-   --Aca hubo complicacion al pepe... se podria haber hecho un diccionario "Comandos" y que sea Comandos[tecla]:enviar()
-   if      comando == 'Pje1_right' then
-      pje1:comandoRightPress()
-   elseif comando == 'Pje1_left'  then
-      pje1:comandoLeftPress()
-   elseif comando == 'Pje1_up'  then
-      pje1:comandoUpPress()
-   elseif comando == 'Pje1_down'  then
-      pje1:comandoDownPress()
-   elseif comando == 'Pje1_atk1' then
-      pje1:comandoAtk1Press()
-
+   --Si es un comando de J1, lo ejecuto   
+   if esClave(key,mapaTeclas_P1)  then --tecla.name es == key
+      comandos[key](pje1, tecla)
    end
+
 
    if key == 'return' then avanzarTexto()
 
@@ -105,17 +135,12 @@ function love.keyreleased(key)
 
 
    tecla.isDown = false
-   comando = mapaTeclas_multiplayer[key]
 
-   if      comando == 'Pje1_right' then
-      pje1:comandoRightRelease()
-   elseif comando == 'Pje1_left'  then
-      pje1:comandoLeftRelease()
-   elseif comando == 'Pje1_up'  then
-      pje1:comandoUpRelease()
-   elseif comando == 'Pje1_down'  then
-      pje1:comandoDownRelease()
+   --Si es un comando de J1, lo ejecuto   
+   if esClave(key,mapaTeclas_P1)  then 
+      comandos_release[key](pje1, tecla)
    end
+
 
 end  
 
