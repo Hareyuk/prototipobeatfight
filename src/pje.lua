@@ -42,7 +42,7 @@ Personaje.__index = Personaje
 
 --CONSTANTES DE VELOCIDAD Y MOVIMIENTO
 dt_RUN = 400 --ms. Tiempo maximo permitido entre dos aprietes de tecla consecutivos para empezar a correr
-dt_DASH = 120 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
+dt_DASH = 150 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
 dash_timer_max = 300/1000 --s  tiempo que dura el dasheo
 
 
@@ -54,12 +54,12 @@ function Personaje:new(id)
    setmetatable(self, {__index = Personaje}) --Crea una instancia de objeto
 
    --SPRITES
-   self:addEstado('IDLE', "pje/reposo/")
-   self:addEstado('WALK', "pje/caminando/")
+   self:addEstado('IDLE', "pje/reposo/", Personaje.init_idle)
+   self:addEstado('WALK', "pje/caminando/", nil, Personaje.update_walk)
    self:addEstado('RUNX',  "pje/caminando/")
    self:addEstado('RUNY',  "pje/caminando/")
 
-   self:addEstado('DASH',  "pje/dash/", Personaje.dashear)
+   self:addEstado('DASH',  "pje/dash/", Personaje.initDash, Personaje.updateDash)
    self:addEstado('ATK1', "pje/boxtest/")
 
    --Estado actual
@@ -128,6 +128,7 @@ function Personaje:update(dt)
 
 
    --Se fija como actualizar las vars de movimiento
+   --Al salir de algunos estados, sí tendria que chequear esto creo
    --self:chequearTeclas(dt) 
    --self:actualizarEstado(dt)
 
@@ -138,11 +139,6 @@ function Personaje:update(dt)
    if Teclas['Pje1_grow'].isDown then self.scale = self.scale + 2*dt end
    if Teclas['Pje1_shrink'].isDown then self.scale = self.scale - 2*dt end
 
-
-   --Si estoy caminando, asigno la velocidad según las teclas presionadas
-   if self:estaEnEstado({'WALK'}) then
-      self:chequearTeclasMovimientoWalk()
-   end
 
    --Si estoy corriendo en X, veo que pasa con Y
    if self:estaEnEstado({'RUNX'}) then
@@ -164,8 +160,7 @@ function Personaje:update(dt)
       self:setEstado('IDLE')
       self.velx, self.vely = 0 , 0 
    end
-   ]]
-
+   
    --Veo si estoy IDLE: si mi vel es 0
    if self:estaEnEstado({'WALK', 'RUNX', 'RUNY'}) and 
       self.velx == 0 and self.vely == 0
@@ -173,41 +168,12 @@ function Personaje:update(dt)
       self:setEstado('IDLE')
       self.velx, self.vely = 0 , 0 
    end
+]]
 
 
 end   
 
---Asigno velocidad y sprites cuando camino y corro según las teclas que estén pulsadas
---Esto resume las tres funciones de "movimiento logica 1.txt" de demo
---Todo falta asignas sprites
-function Personaje:chequearVelocidadDeMovimiento(vx, vy)
 
-   self.velx = 0
-   self.vely = 0
-
-   if Teclas['Pje1_right'].isDown then self.velx = self.velx + vx end
-   if Teclas['Pje1_left'].isDown then self.velx = self.velx - vx end
-   if Teclas['Pje1_up'].isDown then self.vely = self.vely - vy end
-   if Teclas['Pje1_down'].isDown then self.vely = self.vely + vy end
-
-   --Todo normalizar segun walk o run
-   return
-
-end
-
-function Personaje:chequearTeclasMovimientoWalk()
-   self:chequearVelocidadDeMovimiento(self.vwalk_x, self.vwalk_y)
-end
-
---Asigno velocidad y sprites cuando corro horizontal
-function Personaje:chequearTeclasMovimientoRunX()
-   self:chequearVelocidadDeMovimiento(self.vrun_x, self.vwalk_y)
- end
-
---Asigno velocidad y sprites cuando corro vertical
-function Personaje:chequearTeclasMovimientoRunY()
-   self:chequearVelocidadDeMovimiento(self.vwalk_x, self.vrun_y)
-end
 
 ------------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
 
@@ -217,6 +183,8 @@ end
 
 --Idea: Para el mvt: Cada ciclo, setear v = 0, y sumar en direccion por cada boton pulsado.
 --Luego normalizar el vector a la speed del personaje
+
+--Estas cuatro fun de flechitas se pueden resumir en una sola fun
 
 --Recibe un "mover a la derecha"
 --Tecla id: 'Pje1_right'
@@ -295,32 +263,15 @@ function Personaje:comandoRightRelease()
 
    --Veo si puedo empezar un Dash
    dt_release = tecla:dt_last_press()
-   if self:estaEnEstado({'RUN'}) and dt_release < dt_DASH then
-         self:dashear()
+   if self:estaEnEstado({'RUNX'}) and dt_release < dt_DASH then
+         self:setEstado('DASH')
          return
-   end
-
-
-   --Si está presionada la tecla de izq, voy para allá
-   if Teclas['Pje1_left'].isDown then self:comandoLeftPress(); return end
-
-
-   --Si estoy yendo a la derecha, paro el mvt horizontal
-   --Tendria que chequear acá si sigue el mvt vertial
-   if self:estaEnEstado({'WALK', 'RUN'}) and self.velx > 0 then 
-      self:setEstado('IDLE')
-      self.velx = 0
-      return
    end
 
 end
 
 --Recibe un "ya no se mueve a la izquierda"
 function Personaje:comandoLeftRelease()
-   if self:estaEnEstado({'WALK', 'RUN'}) and self.velx < 0 then 
-      self:setEstado('IDLE')
-      self.velx = 0
-   end
 
    --Si está presionada la tecla de der, voy para allá
    if Teclas['Pje1_right'].isDown then self:comandoRightPress() end
@@ -330,10 +281,6 @@ end
 
 --Recibe un "ya no se mueve arriba"
 function Personaje:comandoUpRelease()
-   if self:estaEnEstado({'WALK', 'RUN'}) and self.vely < 0 then 
-      self:setEstado('IDLE')
-      self.vely = 0
-   end
 
    --Si está presionada la tecla de der, voy para allá
    if Teclas['Pje1_right'].isDown then self:comandoRightPress() end
@@ -342,10 +289,7 @@ end
 
 --Recibe un "ya no se mueve abajo"
 function Personaje:comandoDownRelease()
-   if self:estaEnEstado({'WALK', 'RUN'}) and self.vely > 0 then 
-      self:setEstado('IDLE')
-      self.vely = 0
-   end
+
 
    --Si está presionada la tecla de der, voy para allá
    if Teclas['Pje1_right'].isDown then self:comandoRightPress() end
@@ -369,19 +313,22 @@ function Personaje:keypressed(key)
 end
 
 
---Acá se maneja todo el dasheo
+--------------------      DASH      ------------------------
+
+--Se llama cuando se entra al dash. Podría ser parte de una funcion de estado tambien en vez de personaje
+--O sea, esta logica se puede rehacer, para no llamar a esta funcion en las teclas sino solo a setearEstado
+
+function Personaje:initDash()
+   self.dash_timer = 0
+   self.scale = 1
+   return
+end
+
+--Acá se actualiza el  dasheo
 -- La idea es que hay un timer y que la velocidad y cuando termina el dash dependen de este timer 
 -- tambien se controla la animacion desde acá
-function Personaje:dashear(dt)
+function Personaje:updateDash(dt)
 
-   --Si entro al dash desde otro estado: Empiezo el timer
-   --Esta logica se puede rehacer, para no llamar a esta funcion en las teclas sino solo a setearEstado
-   if self.estado.name ~= 'DASH' then
-      self:setEstado('DASH')
-      self.dash_timer = 0
-      self.scale = 1
-      return
-   end
 
    --Si el dash terminó: vuelvo a Idle
    if self.dash_timer >= dash_timer_max then
@@ -408,9 +355,54 @@ function Personaje:dash_vt()
 end
 
 
+--------------------      IDLE   & WALK   ------------------------
+
+
 --Se llama al entrar en un walk
-function Personaje:caminar(dir)
+--Idea: Si hay fuerzas de arrastre o otro tipo, que la velocidad se componga de una "fuerza de mvt" propia (las teclas)
+-- y otra "externa". Y vos solo seteas duro la propia y las externas van con aceleracion.
+function Personaje:init_idle()
+   self.velx, self.vely = 0,0
+end
 
 
+--Asigno velocidad y sprites cuando camino y corro según las teclas que estén pulsadas
+--Esto resume las tres funciones de "movimiento logica 1.txt" de demo.
+-- Los llaman una fun de walk, una de runx, y otra de runy
+--Todo falta asignas sprites
+function Personaje:chequearVelocidadDeMovimiento(vx, vy)
 
+   self.velx = 0
+   self.vely = 0
+
+   if Teclas['Pje1_right'].isDown then self.velx = self.velx + vx end
+   if Teclas['Pje1_left'].isDown then self.velx = self.velx - vx end
+   if Teclas['Pje1_up'].isDown then self.vely = self.vely - vy end
+   if Teclas['Pje1_down'].isDown then self.vely = self.vely + vy end
+
+   --if not( Teclas['Pje1_down'].isDown or Teclas['Pje1_up'].isDown or Teclas['Pje1_right'].isDown or Teclas['Pje1_left'].isDown) 
+     -- then self:setEstado('IDLE')
+   --end
+
+   if(self.velx == 0 and self.vely == 0) then self:setEstado('IDLE') end
+
+   --Todo normalizar segun walk o run vector velocidad
+   return
+
+end
+
+--Si estoy caminando, asigno la velocidad según las teclas presionadas
+function Personaje:update_walk(dt)
+   print('WALKING')
+   self:chequearVelocidadDeMovimiento(self.vwalk_x, self.vwalk_y)
+end
+
+--Asigno velocidad y sprites cuando corro horizontal
+function Personaje:chequearTeclasMovimientoRunX(dt)
+   self:chequearVelocidadDeMovimiento(self.vrun_x, self.vwalk_y)
+ end
+
+--Asigno velocidad y sprites cuando corro vertical
+function Personaje:chequearTeclasMovimientoRunY(dt)
+   self:chequearVelocidadDeMovimiento(self.vwalk_x, self.vrun_y)
 end

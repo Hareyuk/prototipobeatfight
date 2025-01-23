@@ -39,9 +39,16 @@ end
 
 --Asignacion de estados
 require "estados"
-function Objeto:addEstado(nombre, path_sprites)
-   self.estados[nombre] = Estado:new(nombre, path_sprites)
+function Objeto:addEstado(nombre, path_sprites, init_function, update_function)
+   self.estados[nombre] = Estado:new(nombre, path_sprites, init_function, update_function)
 end
+
+--Se fija si el nombre del estado actual es alguno de los de la lista
+--Devuelve un bool
+function Objeto:estaEnEstado(lista)
+   return estaEn(lista, self.estado.name)
+end
+
 
 --Recibe un array de frames para ya dibujar ese estado actual.
 --function Objeto:setSprites(frames, framei = 1, rate = self.rate)
@@ -51,21 +58,17 @@ function Objeto:setEstado(estadoName, params, framei, rate)
    self.estado = self.estados[estadoName]
    self.estado.rate = rate  or self.rate -- rate de ciclado de sprites.
    self.estado.currentFrame_t = 0 -- timer
+   self.estado.init_function(self) --llamo a la funcion de inicializacion de estado si es que tiene
    --e.init_action(params) --Si el estado necesita hacer algo al iniciarse lo hago acá. En general llama a un metodo de la clase padre, como Pje:setearWALK
 
   --print(self.estado.name)
 
 end
 
---Se fija si el nombre del estado actual es alguno de los de la lista
-function Objeto:estaEnEstado(lista)
-   return estaEn(lista, self.estado.name)
-end
 
-
-function Objeto:updateAccion(dt)
-   --print('Haciendo '.. self.estado.name)
-   self.estado:accion(dt) --si el estado actual hace algo especial, se pide acá
+function Objeto:updateEstado(dt)
+   --print(self.name .. ' :  '.. self.estado.name .. ' t = ' .. love.timer.getTime())
+   self.estado.update_function(self, dt) --si el estado actual hace algo especial, se pide acá
 end
 
 
@@ -92,7 +95,7 @@ end
 function Objeto:update(dt)
    --print('Haciendo update de ' .. self.name, 'estado '.. self.estado.name)
    self:updatePosition(dt)
-   self:updateAccion(dt)
+   self:updateEstado(dt)
    self:ciclarFrames(dt)
 
 
@@ -188,6 +191,7 @@ function Objeto:esVisible()
 end
 
 --Muestra las coordenadas propias en pantalla para mayor comodidad
+--Y tambien el nombre de estado arriba del pje
 function Objeto:mostrarCoords()
 
 
@@ -200,16 +204,23 @@ function Objeto:mostrarCoords()
 
    local MOSTRAR_EN_PJE = true -- Las muestra en la misma posicion del personaje
 
-   local x = string.format("%.2f", self.x)
-   local y = string.format("%.2f", self.y)
+   local w, h = self:getWH()
+
+   local x_str = string.format("%.2f", self.x ) 
+   local y_str = string.format("%.2f", self.y) 
 
    if MOSTRAR_EN_PJE then 
 
-      local coords = "x: " .. x .. "\ny: " .. y
-      local color_texto = {235/255,20/255,20/255} --rojo
+      local coords = "x: " .. x_str .. "\ny: " .. y_str
+      local color_rojo = {235/255,20/255,20/255} --rojo
       local limite_pix = 350 --limite antes del wrap
-      local pos = love.math.newTransform(self.x, self.y) -- x e y
-      love.graphics.printf( {color_texto,coords} , pos, limite_pix, "left" )  
+      local pies = love.math.newTransform(self.x, self.y + h) -- --se muestra a los pies
+      love.graphics.printf( {color_rojo,coords} , pies, limite_pix, "left" )  
+
+      local cabeza = love.math.newTransform(self.x, self.y*0.95) -- --se muestra a los pies
+      local color_verde = {10/255,220/255,20/255} --no rojo
+
+      love.graphics.printf( {color_verde,self.estado.name} , cabeza, limite_pix, "left" )  
 
    else --Las muestra abajo en un lugar fijo de la pantalla
 
@@ -229,6 +240,10 @@ function Objeto:getFrameActual()
    return self.estado:getFrameActual()
 end 
 
+--Devuelve el ancho y altura en pantalla del frame actual
+function Objeto:getWH()
+   return self:getFrameActual().imagen:getWidth() * self.scale, self:getFrameActual().imagen:getHeight() * self.scale
+end
 
 -------------------------------------- DETECCION DE COLISIONES -- LOGICA
 
