@@ -32,29 +32,31 @@ end
 -- y que mapeamos cada tecla del input a uno de estos comandos
 
 --Primero me hago una unica tabla que tenga todas las teclas que reconozco, y a que jugador le pertenecen
+
+--Todo: No hay escape a lo del prefijo sin sobrecomplicarla. Volver a lo anterior
 Keybindings = {
 
    --Personaje 1
-   right =  {'right', 1}, --tecla derecha
-   left  =  {'left', 1},  --tecla izquierda
-   up    =  {'up', 1},
-   down  = {'down', 1}, 
+   right =  {'p_right', 1}, --tecla derecha
+   left  =  {'p_left', 1},  --tecla izquierda
+   up    =  {'p_up', 1},
+   down  = {'p_down', 1}, 
    z = {'atk1', 1},
    ['1'] = {'grow', 1},
    ['2'] = {'shrink', 1},
 
    --Personaje 2
-   d =  {'right', 2}, --tecla derecha
-   a  =  {'left', 2},  --tecla izquierda
-   w    =  {'up', 2},
-   s  = {'down', 2}, 
+   d =  {'p_right', 2}, --tecla derecha
+   a  =  {'p_left', 2},  --tecla izquierda
+   w    =  {'p_up', 2},
+   s  = {'p_down', 2}, 
    f = {'atk1', 2},
    x = {'grow', 2},
    c = {'shrink', 2}
 }
 
 
-
+--Es un diccionario de comando --> Tecla  y de Tecla.name --> comando 
 mapaTeclas_P1 = {}
 mapaTeclas_P2 = {}
 
@@ -69,8 +71,8 @@ for key, command in pairs(Keybindings) do
 
    Teclas[key] = Tecla:new(key)
 
-   if command[2] == 1 then mapaTeclas_P1[command[1]] = Teclas[key] end
-   if command[2] == 2 then mapaTeclas_P2[command[1]] = Teclas[key] end
+   if command[2] == 1 then mapaTeclas_P1[command[1]] = Teclas[key] ; mapaTeclas_P1[key] = command[1] end
+   if command[2] == 2 then mapaTeclas_P2[command[1]] = Teclas[key] ; mapaTeclas_P2[key] = command[1] end
 end
 
 
@@ -107,10 +109,16 @@ function love.keypressed(key)
    tecla.isDown = true
 
    --Si es un comando de J1, lo ejecuto   
-   if esClave(key,mapaTeclas_P1)  then --tecla.name es == key
+   if estaEn(mapaTeclas_P1, key)  then  --tecla.name es == key
+      print('Soy ' .. key)
       comandos[key](pje1, tecla)
    end
 
+   --Si es un comando de J2, lo ejecuto   
+   if estaEn(mapaTeclas_P2, key)  then  --tecla.name es == key
+      print('Soy ' .. key)
+      comandos[key](pje2, tecla)
+   end
 
    if key == 'return' then avanzarTexto()
 
@@ -137,10 +145,14 @@ function love.keyreleased(key)
    tecla.isDown = false
 
    --Si es un comando de J1, lo ejecuto   
-   if esClave(key,mapaTeclas_P1)  then 
+   if estaEn(mapaTeclas_P1, key)  then 
       comandos_release[key](pje1, tecla)
    end
 
 
+   --Si es un comando de J1, lo ejecuto   
+   if estaEn(mapaTeclas_P2, key)  then 
+      comandos_release[key](pje2, tecla)
+   end
 end  
 

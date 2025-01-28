@@ -35,6 +35,8 @@ function love.load()
 
    cursor = Cursor:crear()
    pje1 = Personaje:new(1)
+   pje2 = Personaje:new(2)
+
    columna1 = Columna:new(600, SCREEN_HEIGHT*1.1)
    columna2 = Columna:new(900, SCREEN_HEIGHT*1.1)
 
@@ -43,6 +45,7 @@ function love.load()
    crearTextosDebug()
 
    table.insert(objetos, pje1)
+   table.insert(objetos, pje2)
    table.insert(objetos, cursor)
    table.insert(objetos, columna1)
    table.insert(objetos, columna2)

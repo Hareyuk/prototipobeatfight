@@ -16,9 +16,9 @@ function estaEn(tabla, elem)
   return false
 end
 
-function esClave(elem, tabla)
+function esClave(clave, tabla)
  for key, _ in pairs(tabla) do
-    if key == elem then
+    if key == clave then
       return true
     end
   end

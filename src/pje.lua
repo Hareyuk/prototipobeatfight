@@ -76,14 +76,15 @@ function Personaje:new(id)
    self.orientacionX = Orientaciones.DERECHA
 
    --POSICION
-   self.x = S
-   self.y = SCREEN_HEIGHT*1.4
+   self.x = SCREEN_WIDTH
+   self.y = SCREEN_HEIGHT*1.4 / id
 
    self.__index = self
 
 
    --MAPA DE TECLAS
    if(id == 1) then self.teclas = mapaTeclas_P1 end
+   if(id == 2) then self.teclas = mapaTeclas_P2 end
 
 
    --Constantes de velocidad
@@ -110,9 +111,9 @@ function Personaje:addCollisionBoxPies()
    local pie_x, pie_w = w0*0.1, w0*0.1
    local pie_y, pie_h = h0*0.2, h0*0.1
 
-   print('\n\n\n\n' .. ' ' .. pie_x .. ' ' .. ' '.. pie_y .. ' ' ..  pie_w ..' '.. pie_h)
-   print(h)
-   print(self:getFrameActual().imagen:getWidth())
+   -- print('\n\n\n\n' .. ' ' .. pie_x .. ' ' .. ' '.. pie_y .. ' ' ..  pie_w ..' '.. pie_h)
+  -- print(h)
+  -- print(self:getFrameActual().imagen:getWidth())
    for i, estado in pairs(self.estados) do
       for j, frame in pairs(estado.frames) do
          frame.collisionbox = Box:new(pie_x, pie_y, pie_w,  pie_h)
@@ -194,13 +195,12 @@ end
 --Tecla id: 'Pje1_right'
 function Personaje:comandoRightPress(tecla)
 
+   print('Hola!! Soy ' .. self.name)
 
    --Si estoy Idle, entro a caminar
    if self:estaEnEstado({'IDLE'}) then 
       self:setEstado('WALK')
    end
-
-   print(tecla.name)
 
    --Veo si puedo empezar un RUN
    if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
@@ -275,8 +275,6 @@ end
 --Recibe un "ya no se mueve a la izquierda"
 function Personaje:comandoLeftRelease()
 
-   --Si está presionada la tecla de der, voy para allá
-   if self.teclas['left'].isDown then self:comandoRightPress() end
 end
 
 
@@ -284,17 +282,11 @@ end
 --Recibe un "ya no se mueve arriba"
 function Personaje:comandoUpRelease()
 
-   --Si está presionada la tecla de der, voy para allá
-   if self.teclas['up'].isDown then self:comandoRightPress() end
 
 end
 
 --Recibe un "ya no se mueve abajo"
 function Personaje:comandoDownRelease()
-
-
-   --Si está presionada la tecla de der, voy para allá
-   if self.teclas['down'].isDown then self:comandoRightPress() end
 
 end
 
@@ -371,6 +363,7 @@ end
 --Esto resume las tres funciones de "movimiento logica 1.txt" de demo.
 -- Los llaman una fun de walk, una de runx, y otra de runy
 --Todo falta asignas sprites
+--Nota: Esto es mucho más caro que recalcular cuando me llega un press, porque se hace todos los frames
 function Personaje:chequearVelocidadDeMovimiento(vx, vy)
 
    self.velx = 0
