@@ -70,6 +70,7 @@ end
 --Como arriba, pero hace más calculos para conseguir las coordenadas de los hitboxes
 function cargarFramesYHitboxes(carpeta)
 
+   carpeta = 'img/'.. carpeta
    print('Leyendo sprites en ' .. carpeta)
 
    imagenes = loadSprites(carpeta) --consigo las imagenes. Acá estan todas, los frames propiamente, hit, hurt y collision boxes. Cada uno con un tag en el nombre
