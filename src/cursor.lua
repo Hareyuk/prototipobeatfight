@@ -38,7 +38,8 @@ end
 --Override la de la clase Objeto
 function Cursor:updatePosition(dt)
    self.prev_x, self.prev_y = self.x, self.y
-   self.x, self.y = camera:mousePosition() 
+   self.x, self.y = camera:mousePositionCentered() 
+   --self.x, self.y = love.mouse.getX(), love.mouse.getY()
 end
 
 function Cursor:cambiarCursor()

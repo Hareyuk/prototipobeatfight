@@ -32,3 +32,26 @@ function chequearColision(x1,y1,w1,h1, x2,y2,w2,h2)
          y1 < y2+h2 and
          y2 < y1+h1
 end
+
+
+--Norma 2 al cuadrado
+function dist22(obj1, obj2)
+    return (obj1.x - obj2.x)^2 + (obj1.y - obj2.y)^2
+end     
+
+  --Norma 2 
+function dist2(obj1, obj2)
+    return math.sqrt((obj1.x - obj2.x)^2 + (obj1.y - obj2.y)^2)
+end
+
+  --Norma 2 escalada por las dimensiones de la pantalla 
+function dist2_scaled(obj1, obj2)
+    return math.sqrt( ((obj1.x - obj2.x)/SCREEN_WIDTH)^2 + ((obj1.y - obj2.y)/SCREEN_HEIGHT)^2)
+end
+
+
+
+  --Norma 1 escalada por las dimensiones de la pantalla 
+function dist1_scaled(obj1, obj2)
+    return math.abs(obj1.x - obj2.x)/SCREEN_WIDTH + math.abs(obj1.y - obj2.y)/SCREEN_HEIGHT
+end

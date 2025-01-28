@@ -14,6 +14,7 @@ require "cursor" --Para el mouse bonito
 require "fondo"
 require "texto"
 
+
 DEBUG = true -- muestra cosas como coordenadas de personajes, botones apretados y tiempos, etc
 
 
@@ -28,7 +29,11 @@ function love.load()
 
    love.graphics.setDefaultFilter( 'nearest', 'nearest' ) --Algoritmo de interpolacion al agrandar imagenes
 
+    --OPCIONES DE CAMARA
    camera:setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+   --camera:setBounds(0, 0, 0, 0) --En este caso, no dejo que se mueva mucho, porque el fondo ya ocupa toda la pantalla
+
+
 
    objetos = {} -- Lista de objetos actualmente en el juego. 
                   --Incluye las especializacion como Personaje1 y 2, pero no al Fondo o Escenario
@@ -36,6 +41,10 @@ function love.load()
    cursor = Cursor:crear()
    pje1 = Personaje:new(1)
    pje2 = Personaje:new(2)
+
+
+   pje1.isCamLocked = true --No se puede escapar de la camara
+   pje2.isCamLocked = false
 
    columna1 = Columna:new(600, SCREEN_HEIGHT*1.1)
    columna2 = Columna:new(900, SCREEN_HEIGHT*1.1)
@@ -61,11 +70,6 @@ function love.load()
    STATUS = READING
 
 
-    --OPCIONES DE CAMARA
-   camera.CAMERA_SCALE = 1
-   --camera.cam_Xoff =   pje1.currentFrame:getWidth()*2
-   --camera.cam_Yoff = pje1.currentFrame:getHeight() *8
-   --camera:setBounds(0, 0, 0, 0) --En este caso, no dejo que se mueva mucho, porque el fondo ya ocupa toda la pantalla
 
 end
 
@@ -73,12 +77,22 @@ end
 
 ------------------------------------------------------------------------------------
 
+--Logica de objetos:
+--
+
+
 function love.update(dt)
+
+   require("lovebird").update() --Libreria de debugging. 
+   --The console can be accessed by opening the following URL in a web browser: 
+   -- http://127.0.0.1:8000
 
    --camera:followPje()
 
    --fondo:update(dt)
 
+
+   --Actualizo todos los objetos
    for i_obj, objeto in ipairs(objetos) do
 
       --Calculo de nuevas posiciones, actualizacion de estados, teclas presionadas, etc
@@ -94,6 +108,7 @@ function love.update(dt)
          end
       end
 
+
       --DETECTOR DE COLISIONES DE MOVIMIENTO
       --Si el objeto está intentando moverse, veo su collisionbox contra todos los demas
       if objeto:getFrameActual().collisionbox then
@@ -105,6 +120,8 @@ function love.update(dt)
       end
 
    end
+
+
 
 
 end
@@ -122,7 +139,8 @@ end
 function love.draw()
 
    camera:set() --Start looking through the camera.
-   camera:setPosition(pje1.x - SCREEN_WIDTH / 2, pje1.y - SCREEN_HEIGHT / 2)
+   --camera:followPje(pje1)
+   camera:followPjes(pje1, pje2)
 
    fondo:draw()
 
@@ -143,10 +161,14 @@ function love.draw()
       objeto:mostrarHitbox()
       
 
-
    end
    
-  
+
+
+   local color_rojo = {235/255,20/255,20/255} --rojo
+   local limite_pix = 350 --limite antes del wrap
+   local pos = love.math.newTransform(camera.x, camera.y)
+   love.graphics.printf( {color_rojo,dist2_scaled(pje1, pje2)} , pos, limite_pix, "left" )  
 
 
    --FONDO

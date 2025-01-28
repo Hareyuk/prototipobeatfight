@@ -91,7 +91,7 @@ function Personaje:new(id)
    self.vwalk_x = 270 -- Velocidad de caminar
    self.vwalk_y = 80 --Velocidad de caminar en y
    self.vrun_x = 580 -- Velocidad de correr
-   self.vrun_y = 140 -- Velocidad de correr
+   self.vrun_y = 200 -- Velocidad de correr
 
    self.vdash = 5500
 
@@ -176,9 +176,17 @@ function Personaje:update(dt)
 ]]
 
 
+
+   --CAMARA: El personaje no puede salirse de los límites de la cámara
+
+   if self.isCamLocked and camera.mode == 'center' then
+      self.x = math.clamp(self.x, camera.x, camera.x + camera:getWidth() - self.w*self.scale)
+      self.y = math.clamp(self.y, camera.y, camera.y + camera:getHeight() - self.h*self.scale)
+   end
+
 end   
 
-
+--Todo: Que todos los self.scale sean siempre 1 y listo... paz....
 
 ------------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
 

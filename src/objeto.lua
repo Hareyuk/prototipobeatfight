@@ -11,7 +11,8 @@ Objeto = {x = 0, y  = 0,
          estado = nil,  --estado actual. Una instancia de Estado, referencia a un elemento de self.estados
          orientacionX = 0,  --1,2,3 o 4. Ver abajo. RRepensar con 1 y -1
          name = '', -- Nombre propio. Que objeto es
-         debug = false --Para cosas como mostrar su ubicacion, valor de atributos, etc
+         debug = false, --Para cosas como mostrar su ubicacion, valor de atributos, etc
+         w = nil , h = nil -- Dimensiones del objeto. En general es cuando está en "idle"
       }
 
 Objeto.__index = Objeto --Crea clase
@@ -41,6 +42,11 @@ end
 require "estados"
 function Objeto:addEstado(nombre, path_sprites, init_function, update_function)
    self.estados[nombre] = Estado:new(nombre, path_sprites, init_function, update_function)
+   
+   -- Si no tiene dimensiones, se las asigno
+   self.w = self.w or self.estados[nombre]:getFrameActual().imagen:getWidth()
+   self.h = self.h or self.estados[nombre]:getFrameActual().imagen:getHeight()
+   
 end
 
 --Se fija si el nombre del estado actual es alguno de los de la lista

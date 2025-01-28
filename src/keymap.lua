@@ -104,6 +104,8 @@ comandos_release['p_up'] = Personaje.comandoUpRelease
 comandos_release['p_down'] = Personaje.comandoDownRelease
 comandos_release['atk1'] = nil
 
+
+Teclas['q'] = Tecla:new('q')
 ---------------------------------------------------------------------------------
 
 --This function is called whenever a keyboard key is pressed and receives the key that was pressed. The key can be any of the constants. 
@@ -135,6 +137,9 @@ function love.keypressed(key)
    elseif key == 'space' then fondo:cambiarFondo()
 
    elseif key == 'escape' then love.quit()
+
+   elseif key == 'q' then print('Distancia p1 y p2: ' .. dist2(pje1, pje2)); print('Distancia L1 p1 y p2: ' .. dist1_scaled(pje1, pje2))
+
    end
 
 	--registro cuando se pulsó esta tecla
