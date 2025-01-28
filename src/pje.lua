@@ -369,10 +369,10 @@ function Personaje:chequearVelocidadDeMovimiento(vx, vy)
    self.velx = 0
    self.vely = 0
 
-   if self.teclas['right'].isDown then self.velx = self.velx + vx end
-   if self.teclas['left'].isDown then self.velx = self.velx - vx end
-   if self.teclas['up'].isDown then self.vely = self.vely - vy end
-   if self.teclas['down'].isDown then self.vely = self.vely + vy end
+   if self.teclas['p_right'].isDown then self.velx = self.velx + vx end
+   if self.teclas['p_left'].isDown then self.velx = self.velx - vx end
+   if self.teclas['p_up'].isDown then self.vely = self.vely - vy end
+   if self.teclas['p_down'].isDown then self.vely = self.vely + vy end
 
    --if not( Teclas['Pje1_down'].isDown or Teclas['Pje1_up'].isDown or Teclas['Pje1_right'].isDown or Teclas['Pje1_left'].isDown) 
      -- then self:setEstado('IDLE')

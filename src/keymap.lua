@@ -36,65 +36,72 @@ end
 --Todo: No hay escape a lo del prefijo sin sobrecomplicarla. Volver a lo anterior
 Keybindings = {
 
-   --Personaje 1
-   right =  {'p_right', 1}, --tecla derecha
-   left  =  {'p_left', 1},  --tecla izquierda
-   up    =  {'p_up', 1},
-   down  = {'p_down', 1}, 
-   z = {'atk1', 1},
-   ['1'] = {'grow', 1},
-   ['2'] = {'shrink', 1},
 
-   --Personaje 2
-   d =  {'p_right', 2}, --tecla derecha
-   a  =  {'p_left', 2},  --tecla izquierda
-   w    =  {'p_up', 2},
-   s  = {'p_down', 2}, 
-   f = {'atk1', 2},
-   x = {'grow', 2},
-   c = {'shrink', 2}
+
 }
 
 
---Es un diccionario de comando --> Tecla  y de Tecla.name --> comando 
-mapaTeclas_P1 = {}
-mapaTeclas_P2 = {}
+--Es un diccionario de comandoName --> Tecla (ej 'saltar' --> Teclas['spacebar'])
+mapaTeclas_P1 = {
+
+   --Personaje 1
+   right =  'p_right', --tecla derecha
+   left  =  'p_left',  --tecla izquierda
+   up    =  'p_up',
+   down  = 'p_down', 
+   z = 'atk1',
+   ['1'] = 'grow',
+   ['2'] = 'shrink'
+}
+
+
+--Personaje 2
+mapaTeclas_P2 = {
+   d =  'p_right', --tecla derecha
+   a  =  'p_left',  --tecla izquierda
+   w    =  'p_up',
+   s  = 'p_down', 
+   f = 'atk1',
+   x = 'grow',
+   c = 'shrink'
+}
 
 --Ahora, creo un objeto Tecla por cada tecla, y le asigno al mapa de cada jugador lo que le corresponde
---Esto lo podria haber hecho directamente al definir mapa_p1 y mapa_p2, PERO estaba muy keen en tener 'right' como nombre de comando.
---Asi que esta fue la solucion mas "tranqui"
---El MALABAR GIGANTE que hubo que hacer por ese capricho no tiene nombre.... alcanzaba con renombrar el comando "right" a "p_right"... pero bueno...
 
 Teclas = {}
 --La motivacion es que esto me permite luego hacer Personaje.teclas['saltar'] --> devuelve la Tecla para ese comando
-for key, command in pairs(Keybindings) do
+for key, command in pairs(mapaTeclas_P1) do
 
    Teclas[key] = Tecla:new(key)
 
-   if command[2] == 1 then mapaTeclas_P1[command[1]] = Teclas[key] ; mapaTeclas_P1[key] = command[1] end
-   if command[2] == 2 then mapaTeclas_P2[command[1]] = Teclas[key] ; mapaTeclas_P2[key] = command[1] end
+   mapaTeclas_P1[command] = Teclas[key] 
+
 end
 
+for key, command in pairs(mapaTeclas_P2) do
+   Teclas[key] = Tecla:new(key)
+   mapaTeclas_P2[command] = Teclas[key]
+end
 
 
 --Asigno keybidings de teclas (comandos) a funciones de personaje.
 comandos = {}
 
-comandos['right'] = Personaje.comandoRightPress
-comandos['left'] = Personaje.comandoLeftPress
-comandos['up'] = Personaje.comandoUpPress
-comandos['down'] = Personaje.comandoDownPress
+comandos['p_right'] = Personaje.comandoRightPress
+comandos['p_left'] = Personaje.comandoLeftPress
+comandos['p_up'] = Personaje.comandoUpPress
+comandos['p_down'] = Personaje.comandoDownPress
 comandos['atk1'] = nil
 comandos['grow'] = nil
 comandos['shrink'] = nil
 
 
---Para cuando se suelta la tecla. Ocasional, solo para movimiento creo
+--Para cuando se suelta la tecla. Ocasional, solo para las teclas de movimiento creo, los otros no usan
 comandos_release = {}
-comandos_release['right'] = Personaje.comandoRightRelease
-comandos_release['left'] = Personaje.comandoLeftRelease
-comandos_release['up'] = Personaje.comandoUpRelease
-comandos_release['down'] = Personaje.comandoDownRelease
+comandos_release['p_right'] = Personaje.comandoRightRelease
+comandos_release['p_left'] = Personaje.comandoLeftRelease
+comandos_release['p_up'] = Personaje.comandoUpRelease
+comandos_release['p_down'] = Personaje.comandoDownRelease
 comandos_release['atk1'] = nil
 
 ---------------------------------------------------------------------------------
@@ -109,15 +116,17 @@ function love.keypressed(key)
    tecla.isDown = true
 
    --Si es un comando de J1, lo ejecuto   
-   if estaEn(mapaTeclas_P1, key)  then  --tecla.name es == key
+   if esClave(key, mapaTeclas_P1)  then  --tecla.name es == key
       print('Soy ' .. key)
-      comandos[key](pje1, tecla)
+      comando = mapaTeclas_P1[key]
+      comandos[comando](pje1, tecla) --Hago que el pje ejecute este comando
    end
 
    --Si es un comando de J2, lo ejecuto   
-   if estaEn(mapaTeclas_P2, key)  then  --tecla.name es == key
+   if esClave(key, mapaTeclas_P2)  then  --tecla.name es == key
       print('Soy ' .. key)
-      comandos[key](pje2, tecla)
+      comando = mapaTeclas_P2[key]
+      comandos[comando](pje2, tecla)
    end
 
    if key == 'return' then avanzarTexto()
@@ -145,14 +154,16 @@ function love.keyreleased(key)
    tecla.isDown = false
 
    --Si es un comando de J1, lo ejecuto   
-   if estaEn(mapaTeclas_P1, key)  then 
-      comandos_release[key](pje1, tecla)
+   if esClave(key, mapaTeclas_P1)  then 
+      comando = mapaTeclas_P1[key]
+      comandos_release[comando](pje1, tecla)
    end
 
 
-   --Si es un comando de J1, lo ejecuto   
-   if estaEn(mapaTeclas_P2, key)  then 
-      comandos_release[key](pje2, tecla)
+   --Si es un comando de J2, lo ejecuto   
+   if esClave(key, mapaTeclas_P2)  then 
+      comando = mapaTeclas_P2[key]
+      comandos_release[comando](pje2, tecla)
    end
 end  
 
