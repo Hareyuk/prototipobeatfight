@@ -252,7 +252,8 @@ end
 
 --Devuelve el objeto Frame actual
 function Objeto:getFrameActual()
-   return self.estado:getFrameActual()
+   if self.orientacion then
+   return self.estado:getFrameActual(self.orientacion)
 end 
 
 --Devuelve el ancho y altura en pantalla del frame actual

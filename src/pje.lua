@@ -53,7 +53,8 @@ function Personaje:new(id)
    local self = Objeto:new('Personaje '.. id)
    setmetatable(self, {__index = Personaje}) --Crea una instancia de objeto
 
-   --SPRITES
+   --SPRITES VIEJOS
+   --[[
    self:addEstado('IDLE', "pje/reposo/", Personaje.init_idle)
    self:addEstado('WALK', "pje/caminando/", nil, Personaje.update_walk)
    self:addEstado('RUNX',  "pje/caminando/")
@@ -61,6 +62,20 @@ function Personaje:new(id)
 
    self:addEstado('DASH',  "pje/dash/", Personaje.initDash, Personaje.updateDash)
    self:addEstado('ATK1', "pje/boxtest/")
+]]
+   
+   --SPRITES
+   self:addEstado('IDLE', "knight/idle-h/", Personaje.init_idle, nil, 'Derecha')
+   self:addEstado('WALK', "pje/caminando/", nil, Personaje.update_walk)
+   self:addEstado('RUNX',  "pje/caminando/")
+   self:addEstado('RUNY',  "pje/caminando/")
+
+   self:addEstado('DASH',  "pje/dash/", Personaje.initDash, Personaje.updateDash)
+   self:addEstado('ATK1', "pje/boxtest/")
+   
+
+
+
 
    --Estado actual
    self:setEstado('IDLE')   

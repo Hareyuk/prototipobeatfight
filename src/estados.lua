@@ -47,6 +47,8 @@ end
 
 
 
-function Estado:getFrameActual()
+function Estado:getFrameActual(orientacion)
+   if orientacion then return self.frames[orientacion][self.currentFrame_i] end
+   --else, no tiene orientacion:
    return self.frames[self.currentFrame_i] --Ojo que es un objeto y no una imagen.
 end
