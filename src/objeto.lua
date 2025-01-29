@@ -9,7 +9,7 @@ Objeto = {x = 0, y  = 0,
          scale = 1,
          estados = {}, --array de Estados
          estado = nil,  --estado actual. Una instancia de Estado, referencia a un elemento de self.estados
-         orientacionX = 0,  --1,2,3 o 4. Ver abajo. RRepensar con 1 y -1
+         orientacion = nil,  
          name = '', -- Nombre propio. Que objeto es
          debug = false, --Para cosas como mostrar su ubicacion, valor de atributos, etc
          w = nil , h = nil -- Dimensiones del objeto. En general es cuando está en "idle"
@@ -17,7 +17,17 @@ Objeto = {x = 0, y  = 0,
 
 Objeto.__index = Objeto --Crea clase
 
-Orientaciones = {DERECHA = 0, ABAJO = 1, IZQUIERDA = 2, ARRIBA = 3}
+--[[
+   La logica de orientaciones es asi:
+   Si un objeto no tiene orientacion, entonces su estado tiene array de frames y se llama como 
+      self.estado.frames[i]
+   Ahora, si un objeto tiene orientacion, se llaman a los frames como 
+      self.estado.frames[self.orientacion][i]
+   
+
+
+]]
+
 
 --[[ Por si se quiere optimizar mas
 Objeto_idle = {
@@ -40,13 +50,13 @@ end
 
 --Asignacion de estados
 require "estados"
-function Objeto:addEstado(nombre, path_sprites, init_function, update_function)
-   self.estados[nombre] = Estado:new(nombre, path_sprites, init_function, update_function)
+function Objeto:addEstado(nombre, path_sprites, init_function, update_function, orientacion)
+   self.estados[nombre] = Estado:new(nombre, path_sprites, init_function, update_function, orientacion)
    
    -- Si no tiene dimensiones, se las asigno
    self.w = self.w or self.estados[nombre]:getFrameActual().imagen:getWidth()
-   self.h = self.h or self.estados[nombre]:getFrameActual().imagen:getHeight()
-   
+   self.h = self.h or self.estados[nombre]:getFrameActual().imagen:getHeight()   
+
 end
 
 --Se fija si el nombre del estado actual es alguno de los de la lista
@@ -169,17 +179,16 @@ function Objeto:drawFrame()
    --local w = sp:getWidth() 
    --local h = sp:getHeight()
 
-   
-   --El pje mira hacia la derecha o acelera a la derecha
-   if self.orientacionX == Orientaciones.DERECHA  then
-      drawImage(sp, self.x, self.y, w, h, 0,0)
-   end
 
    --El pje mira hacia la izquierda
-   if self.orientacionX == Orientaciones.IZQUIERDA then
-      drawImage(sp, self.x, self.y, -w, h, sp:getWidth(),0)
+   if self.orientacion == 'Izquierda' then
+      drawImage(sp, self.x, self.y, -w, h, w,0)
+   
+   --El pje mira hacia la derecha, arriba o  abajo
+   --Nota: Todo esto se podría optimizar, ya se sabe, usando un unico digito para la orientacion y eso
+   else 
+      drawImage(sp, self.x, self.y, w, h, 0,0)
    end
-
 
    if(DEBUG) then
       self:mostrarCoords()

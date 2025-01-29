@@ -64,6 +64,8 @@ function Personaje:new(id)
 
    --Estado actual
    self:setEstado('IDLE')   
+   self.orientacion = 'Derecha'
+
 
    self.scale = 3
    self.rate = 5 -- rate de ciclado de sprites
@@ -71,9 +73,6 @@ function Personaje:new(id)
    --Agrego colisiones con código
    self:addCollisionBoxPies()
 
-
-   --STATUS
-   self.orientacionX = Orientaciones.DERECHA
 
    --POSICION
    self.x = SCREEN_WIDTH
