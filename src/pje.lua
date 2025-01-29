@@ -68,15 +68,19 @@ function Personaje:new(id)
    self:addEstado('IDLE', "knight/idle-h/", Personaje.init_idle, nil, 'Derecha')
    self:addOrientacionEstado('IDLE', "knight/idle-up/",  'Arriba')
    self:addOrientacionEstado('IDLE', "knight/idle-down/",'Abajo')
+   self:addOrientacionEstado('IDLE', "knight/idle-h/",  'Izquierda')  --Todo: Pensar si dejar asi o si se resuelve de otra manera
+
 
    self:addEstado('WALK', "knight/walk-h/", nil, Personaje.update_walk, 'Derecha')
    self:addOrientacionEstado('WALK', "knight/walk-up/", 'Arriba')
    self:addOrientacionEstado('WALK', "knight/walk-down/",'Abajo')
+   self:addOrientacionEstado('WALK', "knight/walk-h/",'Izquierda')
 
    --Todo ver si cambiar nombre de esta fun a update_mvt
-   self:addEstado('RUN', "knight/run-h/", nil, Personaje.update_walk, 'Derecha')
-   self:addOrientacionEstado('RUN', "knight/run-up/",  'Arriba')
-   self:addOrientacionEstado('RUN', "knight/run-down/",'Abajo')
+   self:addEstado('RUNX', "knight/run-h/", nil, Personaje.update_walk, 'Derecha')
+   self:addEstado('RUNY', "knight/run-up/", nil, Personaje.update_walk, 'Arriba')
+   self:addOrientacionEstado('RUNY', "knight/run-down/",'Abajo')
+   self:addOrientacionEstado('RUNX', "knight/run-h/",'Izquierda')
 
    --self:addEstado('DASH',  "pje/dash/", Personaje.initDash, Personaje.updateDash)
    --self:addEstado('ATK1', "pje/boxtest/")
@@ -88,8 +92,8 @@ function Personaje:new(id)
    self.orientacion = 'Derecha'
 
 
-   self.scale = 1
-   self.rate = 1 -- rate de ciclado de sprites
+   self.scale = 0.6
+   self.rate = 3 -- rate de ciclado de sprites
 
    --Agrego colisiones con código
    --self:addCollisionBoxPies()
@@ -383,6 +387,8 @@ function Personaje:init_idle()
    self.velx, self.vely = 0,0
 end
 
+
+----  USADO EN IDLE y EN WALK --
 
 --Asigno velocidad y sprites cuando camino y corro según las teclas que estén pulsadas
 --Esto resume las tres funciones de "movimiento logica 1.txt" de demo.

@@ -61,32 +61,7 @@ end
 
 function Estado:getFrameActual(orientacion)
 
-   if self.name == 'IDLE' then 
-
-      print('KEYS ')
-      for key, val in pairs(self.frames) do
-         print(key, val)
-      end
-
-      if(orientacion) then print(self.frames[orientacion])
-      
-            print(self.frames[orientacion][self.currentFrame_i])
-
-         for key, val in pairs(self.frames[orientacion]) do
-            print(key, val)
-         end
-      end
-
-      print('N frames de objeto: ' .. self.nframes)
-      print('Frame actual de objeto: ' .. self.currentFrame_i)
-      print('Frame 1 de objeto: ' .. self.frames['Derecha'][1].name)
-      print('Frame 2 de objeto: ' .. self.frames['Derecha'][2].name)
-      print('Frame 3 de objeto: ' .. self.frames['Derecha'][3].name)
-      print('Frame 4 de objeto: ' .. self.frames['Derecha'][4].name)
-
-   end
-
-   if orientacion then return self.frames[orientacion][self.currentFrame_i] end
+    if orientacion then return self.frames[orientacion][self.currentFrame_i] end
    --else, no tiene orientacion:
    return self.frames[self.currentFrame_i] --Ojo que es un objeto y no una imagen.
 end

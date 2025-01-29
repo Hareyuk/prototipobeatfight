@@ -76,6 +76,8 @@ for key, command in pairs(mapaTeclas_P1) do
 
    mapaTeclas_P1[command] = Teclas[key] 
 
+   print(key, command)
+
 end
 
 for key, command in pairs(mapaTeclas_P2) do
@@ -122,6 +124,13 @@ function love.keypressed(key)
       print('Soy ' .. key)
       comando = mapaTeclas_P1[key]
       comandos[comando](pje1, tecla) --Hago que el pje ejecute este comando
+
+      --FIJO ORIENTACION:
+      if(comando == 'p_up') then pje1.orientacion = 'Arriba'
+      elseif (comando == 'p_down') then pje1.orientacion = 'Abajo'
+      elseif (comando == 'p_right') then pje1.orientacion = 'Derecha'
+      elseif (comando == 'p_left') then pje1.orientacion = 'Izquierda'
+      end
    end
 
    --Si es un comando de J2, lo ejecuto   
