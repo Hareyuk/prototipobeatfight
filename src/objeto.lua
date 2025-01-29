@@ -52,11 +52,20 @@ end
 require "estados"
 function Objeto:addEstado(nombre, path_sprites, init_function, update_function, orientacion)
    self.estados[nombre] = Estado:new(nombre, path_sprites, init_function, update_function, orientacion)
-   
-   -- Si no tiene dimensiones, se las asigno
-   self.w = self.w or self.estados[nombre]:getFrameActual().imagen:getWidth()
-   self.h = self.h or self.estados[nombre]:getFrameActual().imagen:getHeight()   
 
+   self.estado = self.estados[nombre] --Asigno el estado actual como este. 
+                                       --Esto es mas que nada para que funcione lo de abajo.
+
+   -- Si no tiene dimensiones, se las asigno
+   self.orientacion = orientacion
+   local w, h = self:getWH()
+   self.w = self.w or w
+   self.h = self.h or h   
+
+end
+
+function Objeto:addOrientacionEstado(nombre, path_sprites, orientacion)
+   self.estados[nombre]:addOrientacion(path_sprites, orientacion)
 end
 
 --Se fija si el nombre del estado actual es alguno de los de la lista
@@ -75,15 +84,11 @@ function Objeto:setEstado(estadoName, params, framei, rate)
    self.estado.rate = rate  or self.rate -- rate de ciclado de sprites.
    self.estado.currentFrame_t = 0 -- timer
    self.estado.init_function(self) --llamo a la funcion de inicializacion de estado si es que tiene
-   --e.init_action(params) --Si el estado necesita hacer algo al iniciarse lo hago acá. En general llama a un metodo de la clase padre, como Pje:setearWALK
-
-  --print(self.estado.name)
 
 end
 
 
 function Objeto:updateEstado(dt)
-   --print(self.name .. ' :  '.. self.estado.name .. ' t = ' .. love.timer.getTime())
    self.estado.update_function(self, dt) --si el estado actual hace algo especial, se pide acá
 end
 
@@ -161,8 +166,7 @@ function Objeto:mostrarCollisionbox()
 end
 
 
---Acá repensar luego, porque el orden en que se dibujan las cosas sí importa y mucho...
--- Y tambien calcular si el personaje aparece en pantalla o no (ej "es visible")
+-- Todo : Calcular si el personaje aparece en pantalla o no antes de dibujar (ej "es visible")
 function Objeto:drawFrame()
 
    --print('Dibujando '.. self.name ..' | frame de estado ' .. self.estado.name)
@@ -175,9 +179,6 @@ function Objeto:drawFrame()
    local sp = self:getFrameActual().imagen --sprite a dibujar, es una imagen
    local w = sp:getWidth() * self.scale
    local h = sp:getHeight() * self.scale
-
-   --local w = sp:getWidth() 
-   --local h = sp:getHeight()
 
 
    --El pje mira hacia la izquierda
@@ -192,7 +193,7 @@ function Objeto:drawFrame()
 
    if(DEBUG) then
       self:mostrarCoords()
-      end
+   end
 
    love.graphics.pop()
 
@@ -252,14 +253,15 @@ end
 
 --Devuelve el objeto Frame actual
 function Objeto:getFrameActual()
-   if self.orientacion then
    return self.estado:getFrameActual(self.orientacion)
 end 
 
 --Devuelve el ancho y altura en pantalla del frame actual
 function Objeto:getWH()
+
    return self:getFrameActual().imagen:getWidth() * self.scale, self:getFrameActual().imagen:getHeight() * self.scale
 end
+
 
 -------------------------------------- DETECCION DE COLISIONES -- LOGICA
 
@@ -290,6 +292,8 @@ function Objeto:checkHit(otroObjeto)
    if not htbox or not hurtbox then return end
 
    if not Objeto:haySolapamiento(self, htbox, otroObjeto, hurtbox) then return end
+
+   -- Procesar abajo lo que pasa si hay hit
    
    print('Ataque de ' ..self.name .. ' a '..otroObjeto.name)
 

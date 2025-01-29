@@ -42,7 +42,6 @@ function love.load()
    pje1 = Personaje:new(1)
    pje2 = Personaje:new(2)
 
-
    pje1.isCamLocked = true --No se puede escapar de la camara
    pje2.isCamLocked = false
 
@@ -54,7 +53,7 @@ function love.load()
    crearTextosDebug()
 
    table.insert(objetos, pje1)
-   table.insert(objetos, pje2)
+   --table.insert(objetos, pje2)
    table.insert(objetos, cursor)
    table.insert(objetos, columna1)
    table.insert(objetos, columna2)
@@ -87,8 +86,6 @@ function love.update(dt)
    --The console can be accessed by opening the following URL in a web browser: 
    -- http://127.0.0.1:8000
 
-   --camera:followPje()
-
    --fondo:update(dt)
 
 
@@ -99,7 +96,11 @@ function love.update(dt)
       objeto:update(dt)
 
        --DETECTOR DE COLISIONES DE HITS
-      --Si el objeto está intentando hitear, veo su hitbox contra todo lo golpeable
+      -- Si el objeto está intentando hitear, veo su hitbox contra todo lo golpeable
+      -- Esto es muy pesado por cada frame. La mayoria de los objetos no hacen esto, pero estoy haciendo una busqueda "semi profunda" para darme cuenta.
+      -- Es algo que en caso de necesitarse se podría optimizar
+      -- Ej, Cada estado podria tener un bool "hits"
+
       if objeto:getFrameActual().hitbox then
          for _, otroObjeto in ipairs(objetos) do
             if objeto ~= otroObjeto then 

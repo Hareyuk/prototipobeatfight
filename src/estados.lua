@@ -9,7 +9,8 @@ Estado = {
          rate = 1, --velocidad a la que cicla los frames
          update_function = nil, -- funcion a ser llamada cada frame durante este estado. Algunos estados piden hacer cosas especiales, eso se asigna acá. Por ej: Dash del personaje
          init_function = nil, --function a ser llamada al entrar a este estado
-         parent = nil --el objeto padre de este estado. Unused
+         parent = nil, --el objeto padre de este estado. Unused
+         nframes = 0 -- Cuantos frames hay en frames. Si no hay orientacion, es simplemente #self.frames 
       }
 
 --Expandir luego acá con los hitboxes y demás
@@ -23,13 +24,17 @@ function Estado:new(name, path_frames, init_function, update_function, orientaci
     local self = setmetatable({}, Estado)
     self.name = name or ''
     --self.frames = loadSprites(path_frames)  acá los frames eran solo imagenes. Viejo
-    
+   
+
     --Asigno frames segun si el objeto tiene orientacion o no. 
     --Ojo: no mezclar frames con y sin orientacion en un solo objeto porque se rompe esta logica
     if orientacion then 
+       self.frames = {}
        self.frames[orientacion] = cargarFramesYHitboxes(path_frames) --Acá los frames son instancias de Frame. Ademas de la imagen, tienen coordenadas de los hitboxes
+       self.nframes = #(self.frames[orientacion]) 
     else
        self.frames = cargarFramesYHitboxes(path_frames) --Acá los frames son instancias de Frame. Ademas de la imagen, tienen coordenadas de los hitboxes
+       self.nframes = #self.frames
    end 
    
     self.init_function = init_function or nada
@@ -39,15 +44,48 @@ function Estado:new(name, path_frames, init_function, update_function, orientaci
 end
 
 
+--Podria solucionar esto MUY facil en una sola linea arriba, con un self.frames = self.frames or {}
+--Pero prefiero mantener la coherencia en español del asunto
+function Estado:addOrientacion(path_frames, orientacion)
+    self.frames[orientacion] = cargarFramesYHitboxes(path_frames)
+end
+
+
 function Estado:ciclarFrames(dt)
 
-   self.currentFrame_t = (self.currentFrame_t + dt*self.rate) % #self.frames --incremento tiempo , y wrap si me paso 
+   self.currentFrame_t = (self.currentFrame_t + dt*self.rate) % self.nframes --incremento tiempo , y wrap si me paso 
    self.currentFrame_i = math.floor(self.currentFrame_t) + 1 --en lua se indexa desde 1
 end
 
 
 
 function Estado:getFrameActual(orientacion)
+
+   if self.name == 'IDLE' then 
+
+      print('KEYS ')
+      for key, val in pairs(self.frames) do
+         print(key, val)
+      end
+
+      if(orientacion) then print(self.frames[orientacion])
+      
+            print(self.frames[orientacion][self.currentFrame_i])
+
+         for key, val in pairs(self.frames[orientacion]) do
+            print(key, val)
+         end
+      end
+
+      print('N frames de objeto: ' .. self.nframes)
+      print('Frame actual de objeto: ' .. self.currentFrame_i)
+      print('Frame 1 de objeto: ' .. self.frames['Derecha'][1].name)
+      print('Frame 2 de objeto: ' .. self.frames['Derecha'][2].name)
+      print('Frame 3 de objeto: ' .. self.frames['Derecha'][3].name)
+      print('Frame 4 de objeto: ' .. self.frames['Derecha'][4].name)
+
+   end
+
    if orientacion then return self.frames[orientacion][self.currentFrame_i] end
    --else, no tiene orientacion:
    return self.frames[self.currentFrame_i] --Ojo que es un objeto y no una imagen.

@@ -66,15 +66,21 @@ function Personaje:new(id)
    
    --SPRITES
    self:addEstado('IDLE', "knight/idle-h/", Personaje.init_idle, nil, 'Derecha')
-   self:addEstado('WALK', "pje/caminando/", nil, Personaje.update_walk)
-   self:addEstado('RUNX',  "pje/caminando/")
-   self:addEstado('RUNY',  "pje/caminando/")
+   self:addOrientacionEstado('IDLE', "knight/idle-up/",  'Arriba')
+   self:addOrientacionEstado('IDLE', "knight/idle-down/",'Abajo')
 
-   self:addEstado('DASH',  "pje/dash/", Personaje.initDash, Personaje.updateDash)
-   self:addEstado('ATK1', "pje/boxtest/")
+   self:addEstado('WALK', "knight/walk-h/", nil, Personaje.update_walk, 'Derecha')
+   self:addOrientacionEstado('WALK', "knight/walk-up/", 'Arriba')
+   self:addOrientacionEstado('WALK', "knight/walk-down/",'Abajo')
+
+   --Todo ver si cambiar nombre de esta fun a update_mvt
+   self:addEstado('RUN', "knight/run-h/", nil, Personaje.update_walk, 'Derecha')
+   self:addOrientacionEstado('RUN', "knight/run-up/",  'Arriba')
+   self:addOrientacionEstado('RUN', "knight/run-down/",'Abajo')
+
+   --self:addEstado('DASH',  "pje/dash/", Personaje.initDash, Personaje.updateDash)
+   --self:addEstado('ATK1', "pje/boxtest/")
    
-
-
 
 
    --Estado actual
@@ -82,11 +88,11 @@ function Personaje:new(id)
    self.orientacion = 'Derecha'
 
 
-   self.scale = 3
-   self.rate = 5 -- rate de ciclado de sprites
+   self.scale = 1
+   self.rate = 1 -- rate de ciclado de sprites
 
    --Agrego colisiones con código
-   self:addCollisionBoxPies()
+   --self:addCollisionBoxPies()
 
 
    --POSICION
@@ -119,11 +125,8 @@ end
 --Todo ver por qué pinga self.estados es siempre tabla vacía
 function Personaje:addCollisionBoxPies()
 
-   local w0 = self:getFrameActual().imagen:getWidth()*self.scale
-   local h0 = self:getFrameActual().imagen:getHeight()*self.scale
-
-   local pie_x, pie_w = w0*0.1, w0*0.1
-   local pie_y, pie_h = h0*0.2, h0*0.1
+   local pie_x, pie_w = self.w*0.1, self.w*0.1
+   local pie_y, pie_h = self.h*0.2, self.h*0.1
 
    -- print('\n\n\n\n' .. ' ' .. pie_x .. ' ' .. ' '.. pie_y .. ' ' ..  pie_w ..' '.. pie_h)
   -- print(h)
