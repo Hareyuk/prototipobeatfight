@@ -18,8 +18,7 @@ Estados_Pje ={
    IDLE = 1,
    WALK = 2,
    DASH = 3,
-   RUNX  = 3.5,
-   RUNY = 3.6,
+   RUN  = 3.5,
    ATK1 = 4,
    ATK2 = 5,
    INTERACT = 6,
@@ -78,10 +77,10 @@ function Personaje:new(id)
    self:addOrientacionEstado('WALK', "knight/walk-h/",'Izquierda')
 
    --Todo ver si cambiar nombre de esta fun a update_mvt
-   self:addEstado('RUNX', "knight/run-h/", nil, Personaje.update_walk, 'Derecha')
-   self:addEstado('RUNY', "knight/run-up/", nil, Personaje.update_walk, 'Arriba')
-   self:addOrientacionEstado('RUNY', "knight/run-down/",'Abajo')
-   self:addOrientacionEstado('RUNX', "knight/run-h/",'Izquierda')
+   self:addEstado('RUN', "knight/run-h/", nil, Personaje.update_run, 'Derecha')
+   self:addOrientacionEstado('RUN', "knight/run-up/", 'Arriba')
+   self:addOrientacionEstado('RUN', "knight/run-down/",'Abajo')
+   self:addOrientacionEstado('RUN', "knight/run-h/",'Izquierda')
 
    --self:addEstado('DASH',  "pje/dash/", Personaje.initDash, Personaje.updateDash)
    --self:addEstado('ATK1', "pje/boxtest/")
@@ -198,17 +197,6 @@ function Personaje:update(dt)
    --if self.teclas['shrink'].isDown then self.scale = self.scale - 2*dt end
 
 
-   --Si estoy corriendo en X, veo que pasa con Y
-   if self:estaEnEstado({'RUNX'}) then
-      self:chequearTeclasMovimientoRunX()
-   end
-
-
-   --Si estoy corriendo en Y, veo que pasa con X
-   if self:estaEnEstado({'RUNY'}) then
-      self:chequearTeclasMovimientoRunY()
-   end
-
 
    --[[
    --Veo si Estoy IDLE: Ninguna tecla pulsada y vengo de un estado de movimieneto
@@ -267,7 +255,7 @@ function Personaje:comandoRightPress(tecla)
 
    --Veo si puedo empezar un RUN
    if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
-      self:setEstado('RUNX')
+      self:setEstado('RUN')
    end
 
   --print(Teclas['Pje1_right']:calcular_dt(), Teclas['Pje1_right'].last_pressed_time)
@@ -285,7 +273,7 @@ function Personaje:comandoLeftPress(tecla)
 
    --Veo si puedo empezar un RUN
    if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
-      self:setEstado('RUNX')
+      self:setEstado('RUN')
    end
 end
 
@@ -301,7 +289,7 @@ function Personaje:comandoUpPress(tecla)
 
    --Veo si puedo empezar un RUN
    if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
-      self:setEstado('RUNY')
+      self:setEstado('RUN')
    end
 
 end
@@ -316,7 +304,7 @@ function Personaje:comandoDownPress(tecla)
 
    --Veo si puedo empezar un RUN
    if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
-      self:setEstado('RUNY')
+      self:setEstado('RUN')
    end
 end
 
@@ -331,7 +319,7 @@ function Personaje:comandoRightRelease(tecla)
 
    --Veo si puedo empezar un Dash
    dt_release = tecla:dt_last_press()
-   if self:estaEnEstado({'RUNX'}) and dt_release < dt_DASH then
+   if self:estaEnEstado({'RUN'}) and dt_release < dt_DASH then
          self:setEstado('DASH')
          return
    end
@@ -487,6 +475,14 @@ end
 --Si estoy caminando, asigno la velocidad según las teclas presionadas
 function Personaje:update_walk(dt)
    self:chequearVelocidadDeMovimiento(self.vwalk_x, self.vwalk_y)
+end
+
+function Personaje:update_run(dt)
+   if(estaEn({'Derecha', 'Izquierda'}, self.orientacion)) then
+      self:chequearTeclasMovimientoRunX(dt)
+   elseif (estaEn({'Arriba', 'Abajo'}, self.orientacion)) then
+      self:chequearTeclasMovimientoRunY(dt)
+   end
 end
 
 --Asigno velocidad y sprites cuando corro horizontal
