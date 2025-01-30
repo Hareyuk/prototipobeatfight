@@ -34,11 +34,7 @@ end
 --Primero me hago una unica tabla que tenga todas las teclas que reconozco, y a que jugador le pertenecen
 
 --Todo: No hay escape a lo del prefijo sin sobrecomplicarla. Volver a lo anterior
-Keybindings = {
-
-
-
-}
+Keybindings = {}
 
 
 --Es un diccionario de comandoName --> Tecla (ej 'saltar' --> Teclas['spacebar'])

@@ -89,26 +89,26 @@ function Personaje:new(id)
    self:addOrientacionEstado('DASH', "knight/dash-down/",'Abajo')
    self:addOrientacionEstado('DASH', "knight/dash-h/",'Izquierda')
 
-   self:addEstado('ATK11', "knight/atk11-h/", Personaje.initAtk1, Personaje.updateAtk1, 'Derecha')
+   self:addEstado('ATK11', "knight/atk11-h/", Personaje.initAtk11, Personaje.updateAtk1, 'Derecha')
    self:addOrientacionEstado('ATK11', "knight/atk11-up/", 'Arriba')
    self:addOrientacionEstado('ATK11', "knight/atk11-down/",'Abajo')
    self:addOrientacionEstado('ATK11', "knight/atk11-h/",'Izquierda')
 
-   self:addEstado('ATK12', "knight/atk12-h/", Personaje.initAtk1, Personaje.updateAtk1, 'Derecha')
+   self:addEstado('ATK12', "knight/atk12-h/", Personaje.initAtk12, Personaje.updateAtk1, 'Derecha')
    self:addOrientacionEstado('ATK12', "knight/atk12-up/", 'Arriba')
    self:addOrientacionEstado('ATK12', "knight/atk12-down/",'Abajo')
    self:addOrientacionEstado('ATK12', "knight/atk12-h/",'Izquierda')
 
 
-   self:addEstado('ATK13', "knight/atk13-h/", Personaje.initAtk1, Personaje.updateAtk1, 'Derecha')
+   self:addEstado('ATK13', "knight/atk13-h/", Personaje.initAtk13, Personaje.updateAtk1, 'Derecha')
    self:addOrientacionEstado('ATK13', "knight/atk13-up/", 'Arriba')
    self:addOrientacionEstado('ATK13', "knight/atk13-down/",'Abajo')
    self:addOrientacionEstado('ATK13', "knight/atk13-h/",'Izquierda')
 
    self:addEstado('HURT1', "knight/hurt1-h/", Personaje.initHurt1, Personaje.updateHurt1, 'Derecha')
-   self:addOrientacionEstado('ATK13', "knight/hurt1-up/", 'Arriba')
-   self:addOrientacionEstado('ATK13', "knight/hurt1-down/",'Abajo')
-   self:addOrientacionEstado('ATK13', "knight/hurt1-h/",'Izquierda')
+   self:addOrientacionEstado('HURT1', "knight/hurt1-up/", 'Arriba')
+   self:addOrientacionEstado('HURT1', "knight/hurt1-down/",'Abajo')
+   self:addOrientacionEstado('HURT1', "knight/hurt1-h/",'Izquierda')
 
 
    
@@ -561,9 +561,14 @@ function Personaje:comandoAtk1Press(tecla)
 
 end
 
-function Personaje:initAtk1()
+function Personaje:initAtk11()
    self.atk1_timer = 0
+   self.atkKnockback = 50 --Ricochet que le imprime a otro si le pega
 end
+
+function Personaje:initAtk12() self.atk1_timer = 0 ; self.atkKnockback = 70 end
+
+function Personaje:initAtk13() self.atk1_timer = 0 ; self.atkKnockback = 120 end
 
 function Personaje:updateAtk1(dt)
 

@@ -342,9 +342,30 @@ function Objeto:checkHit(otroObjeto)
    print('Ataque de ' ..self.name .. ' a '..otroObjeto.name)
 
    otroObjeto:setEstado('HURT1')
+   
+   --Si empuja, le cambio la velocidad al otro
+   if self.atkKnockback then
+      self:imprimirKnockback(otroObjeto)
+   end
 
 end
 
+
+--Esto se llama cuando un objeto hitea a otro, y le imprime un cierto empuje
+function Objeto:imprimirKnockback(otroObjeto)
+
+   --Hallo vector de separacion = direccion a imprimir vel
+   local dx, dy = (otroObjeto.x - self.x), (otroObjeto.y - self.y) 
+
+   --Todo: Normalizar segun otro tipo de distancia (ej no es lo mismo si golpea con la puntita que con el mango de la espada)
+
+
+   --Ahora, le agrego velocidad en esa direccion al otro multiplicada por la potencia de knockback del ataque
+   otroObjeto.velx = otroObjeto.velx + self.atkKnockback/100*dx
+   otroObjeto.vely = otroObjeto.vely + self.atkKnockback/100*dy
+
+
+end
 
 function Objeto:checkMvtColl(otroObjeto)
 
