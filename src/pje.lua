@@ -261,22 +261,29 @@ end
 
 --Estas cuatro fun de flechitas se pueden resumir en una sola fun
 
---Recibe un "mover a la derecha"
---Tecla id: 'Pje1_right'
-function Personaje:comandoRightPress(tecla)
-
-   print('Hola!! Soy ' .. self.name)
+--Funcion global para que las cuatro teclas llamen. Total siempre hago lo mismo
+function Personaje:comandoMovtPress(tecla, orientacion)
 
    --Si estoy Idle, entro a caminar
    if self:estaEnEstado({'IDLE'}) then 
       self:setEstado('WALK')
-      self.orientacion = 'Derecha'
+      self.orientacion = orientacion
    end
 
    --Veo si puedo empezar un RUN
    if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
       self:setEstado('RUN')
    end
+
+end
+
+
+--Recibe un "mover a la derecha"
+--Tecla id: 'Pje1_right'
+function Personaje:comandoRightPress(tecla)
+
+   print('Hola!! Soy ' .. self.name)
+   self:comandoMovtPress(tecla, 'Derecha')
 
   --print(Teclas['Pje1_right']:calcular_dt(), Teclas['Pje1_right'].last_pressed_time)
 
@@ -285,61 +292,28 @@ end
 --Recibe un "mover a la izquierda"
 function Personaje:comandoLeftPress(tecla)
 
-   --Si estoy Idle, entro a caminar
-   if self:estaEnEstado({'IDLE'}) then 
-      self:setEstado('WALK')
-      self.orientacion = 'Izquierda'
-   end
-
-   --Veo si puedo empezar un RUN
-   if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
-      self:setEstado('RUN')
-   end
+   self:comandoMovtPress(tecla, 'Izquierda')
 end
 
 
 --Recibe un "mover arriba"
 function Personaje:comandoUpPress(tecla)
-
-   --Si estoy Idle, entro a caminar
-   if self:estaEnEstado({'IDLE'}) then 
-      self:setEstado('WALK')
-      self.orientacion = 'Arriba'
-   end
-
-   --Veo si puedo empezar un RUN
-   if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
-      self:setEstado('RUN')
-   end
-
+   self:comandoMovtPress(tecla, 'Arriba')
 end
 
 function Personaje:comandoDownPress(tecla)
-      
-   --Si estoy Idle, entro a caminar
-   if self:estaEnEstado({'IDLE'}) then 
-      self:setEstado('WALK')
-      self.orientacion = 'Abajo'
-   end
-
-   --Veo si puedo empezar un RUN
-   if self:estaEnEstado({'IDLE', 'WALK'}) and tecla:dt_last_press()< dt_RUN then
-      self:setEstado('RUN')
-   end
+   self:comandoMovtPress(tecla, 'Abajo')
 end
 
 
 ------------------------------  RELEASE
 
-
-
---Recibe un "ya no se mueve a la derecha"
-function Personaje:comandoRightRelease(tecla)
-   
+--Funcion global para que las cuatro teclas llamen. 
+function Personaje:comandoMovtRelease(tecla, orientacion)
 
    --Veo si puedo empezar un Dash
    dt_release = tecla:dt_last_press()
-   if self:estaEnEstado({'RUN'}) and dt_release < dt_DASH then
+   if self:estaEnEstado({'RUN'}) and dt_release < dt_DASH and self.orientacion == orientacion then
          self:setEstado('DASH')
          return
    end
@@ -348,32 +322,29 @@ function Personaje:comandoRightRelease(tecla)
 
 end
 
---Recibe un "ya no se mueve a la izquierda"
-function Personaje:comandoLeftRelease()
-
-
-   if self:estaEnEstado({'IDLE', 'WALK'}) then self:recalcularOrientacion() end
-
+--Recibe un "ya no se mueve a la derecha"
+function Personaje:comandoRightRelease(tecla)
+   self:comandoMovtRelease(tecla, 'Derecha')
 end
 
-
+--Recibe un "ya no se mueve a la izquierda"
+function Personaje:comandoLeftRelease(tecla)
+   self:comandoMovtRelease(tecla, 'Izquierda')
+end
 
 --Recibe un "ya no se mueve arriba"
-function Personaje:comandoUpRelease()
-
-   if self:estaEnEstado({'IDLE', 'WALK'}) then self:recalcularOrientacion() end
-
+function Personaje:comandoUpRelease(tecla)
+   self:comandoMovtRelease(tecla, 'Arriba')
 end
 
 --Recibe un "ya no se mueve abajo"
-function Personaje:comandoDownRelease()
-
-
-   if self:estaEnEstado({'IDLE', 'WALK'}) then self:recalcularOrientacion() end
-
+function Personaje:comandoDownRelease(tecla)
+   self:comandoMovtRelease(tecla, 'Abajo')
 end
 
 
+
+------------------------------------  ATAQUES 
 function Personaje:comandoAtk1Press()
    self:setEstado('ATK1')
    self.scale = 0.3
