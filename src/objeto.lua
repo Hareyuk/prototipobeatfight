@@ -363,8 +363,8 @@ function Objeto:imprimirKnockback(otroObjeto)
 
 
    --Ahora, le agrego velocidad en esa direccion al otro multiplicada por la potencia de knockback del ataque
-   otroObjeto.velx = otroObjeto.velx + self.atkKnockback/20*dx
-   otroObjeto.vely = otroObjeto.vely + self.atkKnockback/20*dy
+   otroObjeto.velx = otroObjeto.velx + self.atkKnockback/20*dx*(1+self.velx/50)
+   otroObjeto.vely = otroObjeto.vely + self.atkKnockback/20*dy*(1+self.vely/50)
 
    --Para que frene, le imprimo aceleracion de freno
    --Esto se va desacelerando en el hurt
