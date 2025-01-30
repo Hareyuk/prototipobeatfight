@@ -117,7 +117,7 @@ end
 
 --Avanza los frames segun haga falta
 function Objeto:ciclarFrames(dt)
-   self.estado:ciclarFrames(dt)
+   self.estado:ciclarFrames(dt, self.orientacion)
 end
 
 --Lo hago asi en vez de llamar uno por uno en love.update()

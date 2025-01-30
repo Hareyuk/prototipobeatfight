@@ -49,7 +49,8 @@ Frame = {
       imagen = nil,
       hitbox = nil,
       hurtbox = nil,
-      collisionbox = nil
+      collisionbox = nil,
+      dur = 1 -- Duracion que deberia tener este frame
       --shape = 'rect' por cosas con otro tipo de formas. Por ahora no usado 
       }
 

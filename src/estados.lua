@@ -51,9 +51,11 @@ function Estado:addOrientacion(path_frames, orientacion)
 end
 
 
-function Estado:ciclarFrames(dt)
+function Estado:ciclarFrames(dt, orientacion)
 
-   self.currentFrame_t = (self.currentFrame_t + dt*self.rate) % self.nframes --incremento tiempo , y wrap si me paso 
+   --Optimizable recordando self.frame. Lo habia hecho asi pero volvi atras porque preferi mantener legibilidad por ahora a expensas de ser mas caro
+   local dur = self:getFrameActual(orientacion).dur
+   self.currentFrame_t = (self.currentFrame_t + dt*self.rate/dur) % self.nframes --incremento tiempo , y wrap si me paso 
    self.currentFrame_i = math.floor(self.currentFrame_t) + 1 --en lua se indexa desde 1
 end
 

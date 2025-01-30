@@ -44,7 +44,7 @@ dt_RUN = 400/1000 --ms. Tiempo maximo permitido entre dos aprietes de tecla cons
 dt_DASH = 150/1000 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
 dash_timer_max = 300/1000 --ms  tiempo que dura el dasheo
 
-atk1_timer_max = 300/1000 --ms, tiempo que tengo para encadenar el ataque1
+atk1_timer_max = 500/1000 --ms, tiempo que tengo para encadenar el ataque1
 
 --Constructor
 function Personaje:new(id)
@@ -130,7 +130,7 @@ function Personaje:new(id)
    --Agrego colisiones con código
    self:addCollisionBoxPies()
    self:addHurtBoxCuerpo()
-
+   self:addDurationFrames()
 
    --POSICION
    self.x = SCREEN_WIDTH
@@ -225,17 +225,35 @@ function Personaje:addHurtBoxCuerpo()
 
    print('Creando Hurtboxes en cuerpo de ' .. self.name)
 
-   for i, estado in pairs(self.estados) do
+   for ename, estado in pairs(self.estados) do
       print('Creando Hurtboxes en estado ' .. estado.name)
-      for j, frame in pairs(estado.frames) do
-         for k, frame_orientacion in pairs(frame) do
-            frame_orientacion.hurtbox = Box:new(cuerpo_x, cuerpo_y, cuerpo_w,  cuerpo_h)
+      for oname, orientacion in pairs(estado.frames) do
+         for k, frame in pairs(orientacion) do
+            frame.hurtbox = Box:new(cuerpo_x, cuerpo_y, cuerpo_w,  cuerpo_h)
          end
       end
    end
 
    return
 end
+
+--Setea la duracion de algunos frames claves, que duran más
+function Personaje:addDurationFrames()
+
+
+   --Seteo al doble la duracion del primero de todos los frames de ataque
+   for ename, estado in pairs(self.estados) do
+      if estaEn({'ATK11', 'ATK12', 'ATK13'}, estado.name) then
+         print('Alargando durs en estado ' .. estado.name)
+         for oname, orientacion in pairs(estado.frames) do
+            print('Alargando dur en orientacion '.. oname)
+            estado.frames[oname][1].dur = 1.5
+         end
+
+      end
+   end
+end   
+
 
 
 --TODO todos los chequeos de teclas tienen que indexarse de otra manera
@@ -523,7 +541,7 @@ end
 
 ------------------------------------  ATK1 
 function Personaje:comandoAtk1Press(tecla)
-   if(self:estaEnEstado({'IDLE', 'WALK'})) then self:setEstado('ATK11'); return end
+   if(self:estaEnEstado({'IDLE', 'WALK', 'RUN'})) then self:setEstado('ATK11'); return end
 
    if(self:estaEnEstado({'ATK11'}) and tecla:dt_last_press() < atk1_timer_max) then
       self:setEstado('ATK12')
