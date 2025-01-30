@@ -140,8 +140,8 @@ end
 function love.draw()
 
    camera:set() --Start looking through the camera.
-   camera:followPje(pje1)
-   --camera:followPjes(pje1, pje2)
+   --camera:followPje(pje1)
+   camera:followPjes(pje1, pje2)
 
    fondo:draw()
 

@@ -40,11 +40,11 @@ Personaje.__index = Personaje
 ]]
 
 --CONSTANTES DE VELOCIDAD Y MOVIMIENTO
-dt_RUN = 400 --ms. Tiempo maximo permitido entre dos aprietes de tecla consecutivos para empezar a correr
-dt_DASH = 150 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
-dash_timer_max = 300/1000 --s  tiempo que dura el dasheo
+dt_RUN = 400/1000 --ms. Tiempo maximo permitido entre dos aprietes de tecla consecutivos para empezar a correr
+dt_DASH = 150/1000 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
+dash_timer_max = 300/1000 --ms  tiempo que dura el dasheo
 
-atk1_timer_max = 200/1000 --s, tiempo que tengo para encadenar el ataque1
+atk1_timer_max = 300/1000 --ms, tiempo que tengo para encadenar el ataque1
 
 --Constructor
 function Personaje:new(id)
@@ -92,6 +92,17 @@ function Personaje:new(id)
    self:addOrientacionEstado('ATK11', "knight/atk11-up/", 'Arriba')
    self:addOrientacionEstado('ATK11', "knight/atk11-down/",'Abajo')
    self:addOrientacionEstado('ATK11', "knight/atk11-h/",'Izquierda')
+
+   self:addEstado('ATK12', "knight/atk12-h/", Personaje.initAtk1, Personaje.updateAtk1, 'Derecha')
+   self:addOrientacionEstado('ATK12', "knight/atk12-up/", 'Arriba')
+   self:addOrientacionEstado('ATK12', "knight/atk12-down/",'Abajo')
+   self:addOrientacionEstado('ATK12', "knight/atk12-h/",'Izquierda')
+
+
+   self:addEstado('ATK13', "knight/atk13-h/", Personaje.initAtk1, Personaje.updateAtk1, 'Derecha')
+   self:addOrientacionEstado('ATK13', "knight/atk13-up/", 'Arriba')
+   self:addOrientacionEstado('ATK13', "knight/atk13-down/",'Abajo')
+   self:addOrientacionEstado('ATK13', "knight/atk13-h/",'Izquierda')
 
 
    
@@ -491,8 +502,19 @@ end
 
 
 ------------------------------------  ATK1 
-function Personaje:comandoAtk1Press()
-   if(self:estaEnEstado({'IDLE', 'WALK'})) then self:setEstado('ATK11') end
+function Personaje:comandoAtk1Press(tecla)
+   if(self:estaEnEstado({'IDLE', 'WALK'})) then self:setEstado('ATK11'); return end
+
+   if(self:estaEnEstado({'ATK11'}) and tecla:dt_last_press() < atk1_timer_max) then
+      self:setEstado('ATK12')
+      return
+   end
+
+   if(self:estaEnEstado({'ATK12'}) and tecla:dt_last_press() < atk1_timer_max) then
+      self:setEstado('ATK13')
+      return
+   end
+
 end
 
 function Personaje:initAtk1()
@@ -511,3 +533,5 @@ function Personaje:updateAtk1(dt)
    --todo: Ver si voy a las otras fases
 
 end
+
+

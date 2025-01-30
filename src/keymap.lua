@@ -21,7 +21,7 @@ end
 --Tiempo en ms entre ahora y cuando se presionó por ultima vez
 function Tecla:dt_last_press()
 	local dtiempo = love.timer.getTime() - self.last_pressed_time  --tiempo en segundos
-	return dtiempo*1000 --tiempo en ms
+	return dtiempo --tiempo en s
 end
 
 
