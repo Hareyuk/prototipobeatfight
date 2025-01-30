@@ -129,6 +129,7 @@ function Personaje:new(id)
 
    --Agrego colisiones con código
    self:addCollisionBoxPies()
+   self:addHurtBoxCuerpo()
 
 
    --POSICION
@@ -210,6 +211,25 @@ function Personaje:addCollisionBoxPies()
       for j, frame in pairs(estado.frames) do
          for k, frame_orientacion in pairs(frame) do
             frame_orientacion.collisionbox = Box:new(pie_x, pie_y, pie_w,  pie_h)
+         end
+      end
+   end
+
+   return
+end
+
+function Personaje:addHurtBoxCuerpo()
+
+   local cuerpo_x, cuerpo_w = self.w*0.6, self.w*0.4
+   local cuerpo_y, cuerpo_h = self.h*0.7, self.h*0.4
+
+   print('Creando Hurtboxes en cuerpo de ' .. self.name)
+
+   for i, estado in pairs(self.estados) do
+      print('Creando Hurtboxes en estado ' .. estado.name)
+      for j, frame in pairs(estado.frames) do
+         for k, frame_orientacion in pairs(frame) do
+            frame_orientacion.hurtbox = Box:new(cuerpo_x, cuerpo_y, cuerpo_w,  cuerpo_h)
          end
       end
    end
