@@ -82,7 +82,13 @@ function Personaje:new(id)
    self:addOrientacionEstado('RUN', "knight/run-down/",'Abajo')
    self:addOrientacionEstado('RUN', "knight/run-h/",'Izquierda')
 
-   --self:addEstado('DASH',  "pje/dash/", Personaje.initDash, Personaje.updateDash)
+   self:addEstado('DASH', "knight/dash-h/", Personaje.initDash, Personaje.updateDash, 'Derecha')
+   self:addOrientacionEstado('DASH', "knight/dash-up/", 'Arriba')
+   self:addOrientacionEstado('DASH', "knight/dash-down/",'Abajo')
+   self:addOrientacionEstado('DASH', "knight/dash-h/",'Izquierda')
+
+
+
    --self:addEstado('ATK1', "pje/boxtest/")
    
 
@@ -385,7 +391,11 @@ function Personaje:updateDash(dt)
       return
    end
 
-   self.velx = self:dash_vt()
+   if(self.orientacion == 'Derecha' or 
+      self.orientacion == 'Izquierda') then self.velx = self:dash_vt() --Provisorio, queda un step hacia atrás re cool
+   elseif self.orientacion == 'Abajo' then self.vely = self:dash_vt()
+   elseif self.orientacion == 'Arriba' then self.vely = -self:dash_vt()
+   end
    self.dash_timer = self.dash_timer + dt
 
 end 
