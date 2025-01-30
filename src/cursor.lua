@@ -22,7 +22,7 @@ function Cursor:crear()
    self:setEstado('cora1')
 
 
-   self.scale = 0.2
+   self:setScale(0.2)
    self.cursor_i = 1
   
   -- self.currentStateFrames = self.frames --unico estado, es redundante esta linea. Pero por claridad lo separé así

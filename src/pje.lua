@@ -136,7 +136,6 @@ end
 --Para dibujar al Knight, tomo las coordenadas (x,y)  centrales del frame. 
 function Personaje:drawFrame()
 
-
    local sp = self:getFrameActual().imagen --sprite a dibujar, es una imagen
 
    --local x,y = self.x + self.w/2, self.y + self.h/2
@@ -263,6 +262,7 @@ function Personaje:comandoRightPress(tecla)
    --Si estoy Idle, entro a caminar
    if self:estaEnEstado({'IDLE'}) then 
       self:setEstado('WALK')
+      self.orientacion = 'Derecha'
    end
 
    --Veo si puedo empezar un RUN
@@ -280,6 +280,7 @@ function Personaje:comandoLeftPress(tecla)
    --Si estoy Idle, entro a caminar
    if self:estaEnEstado({'IDLE'}) then 
       self:setEstado('WALK')
+      self.orientacion = 'Izquierda'
    end
 
    --Veo si puedo empezar un RUN
@@ -295,6 +296,7 @@ function Personaje:comandoUpPress(tecla)
    --Si estoy Idle, entro a caminar
    if self:estaEnEstado({'IDLE'}) then 
       self:setEstado('WALK')
+      self.orientacion = 'Arriba'
    end
 
    --Veo si puedo empezar un RUN
@@ -309,6 +311,7 @@ function Personaje:comandoDownPress(tecla)
    --Si estoy Idle, entro a caminar
    if self:estaEnEstado({'IDLE'}) then 
       self:setEstado('WALK')
+      self.orientacion = 'Abajo'
    end
 
    --Veo si puedo empezar un RUN
@@ -333,10 +336,15 @@ function Personaje:comandoRightRelease(tecla)
          return
    end
 
+   if self:estaEnEstado({'IDLE', 'WALK'}) then self:recalcularOrientacion() end
+
 end
 
 --Recibe un "ya no se mueve a la izquierda"
 function Personaje:comandoLeftRelease()
+
+
+   if self:estaEnEstado({'IDLE', 'WALK'}) then self:recalcularOrientacion() end
 
 end
 
@@ -345,11 +353,15 @@ end
 --Recibe un "ya no se mueve arriba"
 function Personaje:comandoUpRelease()
 
+   if self:estaEnEstado({'IDLE', 'WALK'}) then self:recalcularOrientacion() end
 
 end
 
 --Recibe un "ya no se mueve abajo"
 function Personaje:comandoDownRelease()
+
+
+   if self:estaEnEstado({'IDLE', 'WALK'}) then self:recalcularOrientacion() end
 
 end
 
@@ -412,6 +424,21 @@ function Personaje:dash_vt()
 end
 
 
+
+--Esto es para llamar cuando solté alguna tecla de movimiento o algo así.
+--Me fijo hacia donde miro según hacia donde me estoy moviendo
+
+function Personaje:recalcularOrientacion()
+
+   --Todo:s optimizable a costa de menos legibilidadx
+   if self.velx == 0 and self.vely < 0 then self.orientacion = 'Arriba'
+   elseif self.velx == 0 and self.vely > 0 then self.orientacion = 'Abajo'
+   elseif self.vely == 0 and self.velx > 0 then self.orientacion = 'Derecha'
+   elseif self.vely == 0 and self.velx < 0 then self.orientacion = 'Izquierda'
+
+   end
+end
+
 --------------------      IDLE   & WALK   ------------------------
 
 
@@ -443,7 +470,9 @@ function Personaje:chequearVelocidadDeMovimiento(vx, vy)
      -- then self:setEstado('IDLE')
    --end
 
-   if(self.velx == 0 and self.vely == 0) then self:setEstado('IDLE') end
+   if(self.velx == 0 and self.vely == 0) then self:setEstado('IDLE') 
+   else self:recalcularOrientacion() end --todo: optimizable, esto se puede chequear solo cuando se suelta una tecla guardando un bool para que se chequee en el siguiente update del pje (llamando a la funcion desde el keyreleased no va a andar)
+
 
    --Todo normalizar segun walk o run vector velocidad
    return

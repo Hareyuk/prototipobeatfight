@@ -242,7 +242,8 @@ function Objeto:mostrarCoords()
       local cabeza = love.math.newTransform(self.x, self.y*0.95) -- --se muestra a los pies
       local color_verde = {10/255,220/255,20/255} --no rojo
 
-      love.graphics.printf( {color_verde,self.estado.name} , cabeza, limite_pix, "left" )  
+      local ori = self.orientacion or '' --Si tiene orientacion tam la muestro
+      love.graphics.printf( {color_verde,self.estado.name .. ' | ' .. ori} , cabeza, limite_pix, "left" )  
 
    else --Las muestra abajo en un lugar fijo de la pantalla
 
