@@ -165,6 +165,10 @@ function Objeto:mostrarCollisionbox()
     self:mostrarBox('collisionbox')
 end
 
+function Objeto:setScale(s)
+   self.scale = s
+   self.w, self.h = self:getWH()
+end
 
 -- Todo : Calcular si el personaje aparece en pantalla o no antes de dibujar (ej "es visible")
 function Objeto:drawFrame()
@@ -177,22 +181,24 @@ function Objeto:drawFrame()
    --love.graphics.scale(self.scale)
 
    local sp = self:getFrameActual().imagen --sprite a dibujar, es una imagen
-   local w = sp:getWidth() * self.scale
-   local h = sp:getHeight() * self.scale
+
 
 
    --El pje mira hacia la izquierda
    if self.orientacion == 'Izquierda' then
-      drawImage(sp, self.x, self.y, -w, h, w,0)
-   
+      --drawImage(sp, self.x, self.y, -self.w, self.h, self.w,0)
+      drawImage2Izq(sp, self.x, self.y, self.scale)
    --El pje mira hacia la derecha, arriba o  abajo
    --Nota: Todo esto se podría optimizar, ya se sabe, usando un unico digito para la orientacion y eso
    else 
-      drawImage(sp, self.x, self.y, w, h, 0,0)
+      --drawImage(sp, self.x, self.y, self.w, self.h, 0,0)
+      drawImage2(sp, self.x, self.y, self.scale, 0)
    end
 
    if(DEBUG) then
       self:mostrarCoords()
+      self:mostrarBordes()
+      self:mostrarCentro()
    end
 
    love.graphics.pop()
@@ -250,15 +256,33 @@ function Objeto:mostrarCoords()
    return
 end
 
+--Muestra los bordes del frame actual 
+function Objeto:mostrarBordes()
+
+   love.graphics.rectangle('line', self.x
+                                 , self.y
+                                 , self.w
+                                 , self.h) 
+   return
+end
+
+function Objeto:mostrarCentro()
+
+   love.graphics.circle('fill', self.x + self.w/2
+                                 , self.y + self.h/2
+                                 , self.w/20) 
+   return   
+end
+
+
 
 --Devuelve el objeto Frame actual
 function Objeto:getFrameActual()
    return self.estado:getFrameActual(self.orientacion)
 end 
 
---Devuelve el ancho y altura en pantalla del frame actual
+--Devuelve el ancho y altura en pantalla del frame actual. Ya incorpora el scale
 function Objeto:getWH()
-
    return self:getFrameActual().imagen:getWidth() * self.scale, self:getFrameActual().imagen:getHeight() * self.scale
 end
 

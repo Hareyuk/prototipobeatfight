@@ -58,7 +58,7 @@ function love.load()
    table.insert(objetos, columna1)
    table.insert(objetos, columna2)
 
-   cargarMusica()
+   --cargarMusica()
 
 
 

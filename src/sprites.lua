@@ -70,8 +70,15 @@ end
 --Como arriba, pero hace más calculos para conseguir las coordenadas de los hitboxes
 function cargarFramesYHitboxes(carpeta)
 
+
    carpeta = 'img/'.. carpeta
    print('Leyendo sprites en ' .. carpeta)
+
+   --TRIM: SI la carpeta es knight/, voy a hacer un trim. OJO CON OLVIDAR ESO
+   --local trim = false --Esto lo agregué para los sprites de PJE: Recorta todo el espacio vacío y devuelve solo lo "minimo" indispensable
+   --if string.find (carpeta, 'knight/') then trim = true end
+   --Esta manera no es robusta asi que la desactivo
+
 
    imagenes = loadSprites(carpeta) --consigo las imagenes. Acá estan todas, los frames propiamente, hit, hurt y collision boxes. Cada uno con un tag en el nombre
    frames = {}
@@ -82,8 +89,8 @@ function cargarFramesYHitboxes(carpeta)
    files = love.filesystem.getDirectoryItems(carpeta)
 
    for i, filename in ipairs(files) do
-      local img = love.graphics.newImage(carpeta .. filename)
-      local imgData = love.image.newImageData(carpeta .. filename) --lo mismo, pero puedo acceder a los pixeles. con el otro no
+      local img = love.graphics.newImage(carpeta .. filename) --Esto se puede dibujar en pantalla
+      local imgData = love.image.newImageData(carpeta .. filename) --No se puede dibujar, pero puedo acceder a los pixeles. con el otro no
 
       if     string.find (filename, 'hitbox') then table.insert(hbox_imgs,imgData) --Si el file tiene info de hitbox paso
          elseif string.find (filename, 'hurtbox') then table.insert(hurtbox_imgs,imgData)
@@ -105,6 +112,7 @@ function cargarFramesYHitboxes(carpeta)
 
       x,y,w,h = getXYWH(collisions_imgs[i])
       if w and h then frame.collisionbox = Box:new(x,y,w,h) ; print('Collisionbox aca') end
+
     end
 
     print( carpeta .. ' leida')
@@ -115,7 +123,11 @@ end
 
 
 --Recibe un png idealmente vacío salvo por un rectangulo, y devuelve posicion de x,y,w y h de ese rect
-function getXYWH(img)
+-- Lo que hace es encontrar el menor rectangulo posible que tiene pixeles de la imagen, ignorando espacios vacios.
+-- Util para recortar bordes vacios en sprites
+function getXYWH(imgdata)
+
+   img = imgdata --renombre comodo
 
    if not img then return nil,nil, nil, nil end -- No hay hitbox
 
@@ -160,3 +172,37 @@ function drawImage(img, x, y, width, height, offsetX, rotation, alpha) --Como es
 end
 
 
+function drawImage2(img, x, y, scale)
+   love.graphics.draw(img, x, y, 0, scale, scale, 0 , 0)
+end
+
+function drawImage2Izq(img, x, y, scale)
+   love.graphics.draw(img, x, y, 0, -scale, scale, img:getWidth(), 0 )
+end
+--Ojo con esto que me rompió el coco más de un dia... para hacer el flip, el parametro Offset se aplica ANTES del SCALE
+
+
+--Recorta todos los sprites de un objeto guardandose para que empiecen en (x,y) y con dimensiones w,h
+--Obviamente hecho para los sprites de knight nada mas
+--La idea es recortar el espacio sobrante de los frames pero que sea igual en todos
+
+--Unused
+function trimSprites(objeto, x,y, w, h)
+
+   local trimmedImageData = love.image.newImageData(w, h)
+
+   for i, estado in pairs(objeto.estados) do
+      for frame in pairs(estado.frames) do
+
+          -- Copy pixels from the original image
+          trimmedImageData:paste(frame.imagen, 0, 0, x, y, w, h)
+
+         -- Reemplazo el frame grande con el chico
+          frame.imagen = love.graphics.newImage(trimmedImageData)
+
+         --This saves the trimmed image as "trimmed_output.png" in the game directory.
+          --trimmedImageData:encode("png", "trimmed_output.png")
+       end
+    end
+end
+ 

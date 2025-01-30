@@ -52,6 +52,7 @@ function Personaje:new(id)
 
    local self = Objeto:new('Personaje '.. id)
    setmetatable(self, {__index = Personaje}) --Crea una instancia de objeto
+   self.__index = self
 
    --SPRITES VIEJOS
    --[[
@@ -86,14 +87,16 @@ function Personaje:new(id)
    --self:addEstado('ATK1', "pje/boxtest/")
    
 
+   --DIMENSIONES REALES 
+   self.true_x =
 
    --Estado actual
    self:setEstado('IDLE')   
    self.orientacion = 'Derecha'
 
 
-   self.scale = 0.6
-   self.rate = 3 -- rate de ciclado de sprites
+   self:setScale(0.6)
+   self.rate = 5 -- rate de ciclado de sprites
 
    --Agrego colisiones con código
    --self:addCollisionBoxPies()
@@ -103,7 +106,6 @@ function Personaje:new(id)
    self.x = SCREEN_WIDTH
    self.y = SCREEN_HEIGHT*1.4 / id
 
-   self.__index = self
 
 
    --MAPA DE TECLAS
@@ -112,18 +114,49 @@ function Personaje:new(id)
 
 
    --Constantes de velocidad
-   self.vwalk_x = 270 -- Velocidad de caminar
-   self.vwalk_y = 80 --Velocidad de caminar en y
-   self.vrun_x = 580 -- Velocidad de correr
-   self.vrun_y = 200 -- Velocidad de correr
+   self.vwalk_x = 180 -- Velocidad de caminar
+   self.vwalk_y = 120 --Velocidad de caminar en y
+   self.vrun_x = 400 -- Velocidad de correr
+   self.vrun_y = 300 -- Velocidad de correr
 
    self.vdash = 5500
 
+--[[
+   --AJUSTO LOS SPRITES (Trim bordes vacios, ajustandolos todos al estado "idle")
+   local x,y,w,h = getXYWH(self.estados['IDLE'].frames.imagen)
+   local idleimgdata = love.image.newImageData('img/knight/idle-h')
+   trimSprites(self, x,y,w,h)
+   ]]
 
    print("Personaje creado!")
-
+   
    return self
 end
+
+--Para dibujar al Knight, tomo las coordenadas (x,y)  centrales del frame. 
+function Personaje:drawFrame()
+
+
+   local sp = self:getFrameActual().imagen --sprite a dibujar, es una imagen
+
+   --local x,y = self.x + self.w/2, self.y + self.h/2
+   local x,y = self.x, self.y
+
+   if self.orientacion == 'Izquierda' then
+      drawImage2Izq(sp, x, y, self.scale)
+
+   else 
+      drawImage2(sp, x, y, self.scale)
+   end
+
+   if(DEBUG) then
+      self:mostrarCoords()
+      self:mostrarBordes()
+      self:mostrarCentro()
+   end
+
+end
+
 
 --Agrego colisiones en los pies
 --Todo ver por qué pinga self.estados es siempre tabla vacía
@@ -201,13 +234,14 @@ function Personaje:update(dt)
    --CAMARA: El personaje no puede salirse de los límites de la cámara
 
    if self.isCamLocked and camera.mode == 'center' then
-      self.x = math.clamp(self.x, camera.x, camera.x + camera:getWidth() - self.w*self.scale)
-      self.y = math.clamp(self.y, camera.y, camera.y + camera:getHeight() - self.h*self.scale)
+      self.x = math.clamp(self.x, camera.x, camera.x + camera:getWidth() - self.w)
+      self.y = math.clamp(self.y, camera.y, camera.y + camera:getHeight() - self.h)
    end
 
 end   
 
---Todo: Que todos los self.scale sean siempre 1 y listo... paz....
+--Todo: Que todos los self.scale sean siempre 1 y listo... paz.... 
+
 
 ------------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
 
@@ -343,7 +377,7 @@ end
 
 function Personaje:initDash()
    self.dash_timer = 0
-   self.scale = 1
+   --self.scale = 1
    return
 end
 
@@ -356,7 +390,7 @@ function Personaje:updateDash(dt)
    --Si el dash terminó: vuelvo a Idle
    if self.dash_timer >= dash_timer_max then
       self:setEstado('IDLE')
-      self.scale = 3
+      --self.scale = 3
       return
    end
 
