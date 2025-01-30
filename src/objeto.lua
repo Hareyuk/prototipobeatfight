@@ -7,7 +7,7 @@ Objeto = {x = 0, y  = 0,
          accx = 0, accy = 0,
          prev_x = 0, prev_y = 0, --para updatear el movimiento
          scale = 1,
-         estados = {}, --array de Estados
+         estados = nil, --array de Estados
          estado = nil,  --estado actual. Una instancia de Estado, referencia a un elemento de self.estados
          orientacion = nil,  
          name = '', -- Nombre propio. Que objeto es
@@ -43,6 +43,7 @@ Objeto_idle = {
 function Objeto:new(name)
     local self = setmetatable({}, Objeto)
     self.name = name or ''
+    self.estados = {}
 
     print('Objeto '.. name .. ' creado')
   return self
@@ -61,6 +62,14 @@ function Objeto:addEstado(nombre, path_sprites, init_function, update_function, 
    local w, h = self:getWH()
    self.w = self.w or w
    self.h = self.h or h   
+
+   --[[
+   if(DEBUG) then
+      for i, estado in pairs(self.estados) do
+         print('Estados de ' .. self.name .. ' : '..  estado.name)
+      end
+   end
+   ]]
 
 end
 
@@ -125,7 +134,6 @@ end
 
 
 
---Todo revisar lo de las escalas, se recontra rompe 
 function Objeto:mostrarBox(boxtype) --muestra uno de los tres tipos de hitbox, con su color y todo
 
    local frame = self:getFrameActual()
@@ -199,6 +207,12 @@ function Objeto:drawFrame()
       self:mostrarCoords()
       self:mostrarBordes()
       self:mostrarCentro()
+
+
+      self:mostrarHurtbox()
+      self:mostrarCollisionbox()
+      self:mostrarHitbox()
+      
    end
 
    love.graphics.pop()

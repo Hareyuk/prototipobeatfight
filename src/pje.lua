@@ -97,8 +97,14 @@ function Personaje:new(id)
    self:setScale(0.6)
    self.rate = 5 -- rate de ciclado de sprites
 
+
+   --DEBUG:
+   for i, estado in pairs(self.estados) do
+      print('Estados de ' .. self.name .. ' : '..  estado.name)
+   end
+
    --Agrego colisiones con código
-   --self:addCollisionBoxPies()
+   self:addCollisionBoxPies()
 
 
    --POSICION
@@ -133,6 +139,7 @@ function Personaje:new(id)
 end
 
 --Para dibujar al Knight, tomo las coordenadas (x,y)  centrales del frame. 
+--Todo: Por ahora NADA distinto al frame de objeto. Puede volar
 function Personaje:drawFrame()
 
    local sp = self:getFrameActual().imagen --sprite a dibujar, es una imagen
@@ -151,6 +158,12 @@ function Personaje:drawFrame()
       self:mostrarCoords()
       self:mostrarBordes()
       self:mostrarCentro()
+
+
+
+      self:mostrarHurtbox()
+      self:mostrarCollisionbox()
+      self:mostrarHitbox()
    end
 
 end
@@ -160,15 +173,22 @@ end
 --Todo ver por qué pinga self.estados es siempre tabla vacía
 function Personaje:addCollisionBoxPies()
 
-   local pie_x, pie_w = self.w*0.1, self.w*0.1
-   local pie_y, pie_h = self.h*0.2, self.h*0.1
+   local pie_x, pie_w = self.w*0.6, self.w*0.4
+   local pie_y, pie_h = self.h*0.95, self.h*0.3
+
+   print('Creando colisionboxes en pies de ' .. self.name)
 
    -- print('\n\n\n\n' .. ' ' .. pie_x .. ' ' .. ' '.. pie_y .. ' ' ..  pie_w ..' '.. pie_h)
   -- print(h)
   -- print(self:getFrameActual().imagen:getWidth())
    for i, estado in pairs(self.estados) do
+      print('Creando colisiones en estado ' .. estado.name)
       for j, frame in pairs(estado.frames) do
-         frame.collisionbox = Box:new(pie_x, pie_y, pie_w,  pie_h)
+         print(frame.name)
+         for k, frame_orientacion in pairs(frame) do
+            print(frame_orientacion)
+            frame_orientacion.collisionbox = Box:new(pie_x, pie_y, pie_w,  pie_h)
+         end
       end
    end
 
@@ -221,8 +241,8 @@ function Personaje:update(dt)
    --CAMARA: El personaje no puede salirse de los límites de la cámara
 
    if self.isCamLocked and camera.mode == 'center' then
-      self.x = math.clamp(self.x, camera.x, camera.x + camera:getWidth() - self.w)
-      self.y = math.clamp(self.y, camera.y, camera.y + camera:getHeight() - self.h)
+      self.x = math.clamp(self.x, camera.x, camera.x + camera:getWidth() - self.w/2)
+      self.y = math.clamp(self.y, camera.y, camera.y + camera:getHeight() - self.h/2)
    end
 
 end   

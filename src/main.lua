@@ -157,11 +157,6 @@ function love.draw()
       
       objeto:drawFrame()
 
-      objeto:mostrarHurtbox()
-      objeto:mostrarCollisionbox()
-      objeto:mostrarHitbox()
-      
-
    end
    
 
