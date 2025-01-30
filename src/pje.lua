@@ -45,6 +45,7 @@ dt_DASH = 150/1000 --ms. Tiempo maximo permitido para soltar la tecla desde la u
 dash_timer_max = 300/1000 --ms  tiempo que dura el dasheo
 
 atk1_timer_max = 500/1000 --ms, tiempo que tengo para encadenar el ataque1
+hurt1_timer_max = 300/1000 --Tiempo que dura el daño1
 
 --Constructor
 function Personaje:new(id)
@@ -103,6 +104,11 @@ function Personaje:new(id)
    self:addOrientacionEstado('ATK13', "knight/atk13-up/", 'Arriba')
    self:addOrientacionEstado('ATK13', "knight/atk13-down/",'Abajo')
    self:addOrientacionEstado('ATK13', "knight/atk13-h/",'Izquierda')
+
+   self:addEstado('HURT1', "knight/hurt1-h/", Personaje.initHurt1, Personaje.updateHurt1, 'Derecha')
+   self:addOrientacionEstado('ATK13', "knight/hurt1-up/", 'Arriba')
+   self:addOrientacionEstado('ATK13', "knight/hurt1-down/",'Abajo')
+   self:addOrientacionEstado('ATK13', "knight/hurt1-h/",'Izquierda')
 
 
    
@@ -571,5 +577,26 @@ function Personaje:updateAtk1(dt)
    --todo: Ver si voy a las otras fases
 
 end
+
+
+
+
+------------------------------------  HURT1 
+
+function Personaje:initHurt1()
+   self.hurt1_timer = 0
+end
+
+function Personaje:updateHurt1(dt)
+
+
+   if(self.hurt1_timer >= hurt1_timer_max) then
+      self:setEstado('IDLE')
+      return
+   end
+
+   self.hurt1_timer = self.hurt1_timer + dt
+end
+
 
 

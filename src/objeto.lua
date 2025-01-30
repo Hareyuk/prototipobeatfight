@@ -341,6 +341,8 @@ function Objeto:checkHit(otroObjeto)
    
    print('Ataque de ' ..self.name .. ' a '..otroObjeto.name)
 
+   otroObjeto:setEstado('HURT1')
+
 end
 
 
