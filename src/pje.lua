@@ -275,36 +275,16 @@ function Personaje:update(dt)
    --self:chequearTeclas(dt) 
    --self:actualizarEstado(dt)
 
-   --Limites de la pantalla
-   --self.x = math.clamp(self.x,0, SCREEN_WIDTH - self.currentFrame:getWidth()*self.scale) --Se le podría agregar un "acell = 0 y vel=0" en los casos que choca, si fuera más pro
-   --self.y = math.clamp(self.y,0, SCREEN_HEIGHT)
 
    --if self.teclas['grow'].isDown then self.scale = self.scale + 2*dt end
    --if self.teclas['shrink'].isDown then self.scale = self.scale - 2*dt end
 
 
-
-   --[[
-   --Veo si Estoy IDLE: Ninguna tecla pulsada y vengo de un estado de movimieneto
-   if self:estaEnEstado({'WALK', 'RUN'}) and not
-      (Teclas['Pje1_right'].isDown or Teclas['Pje1_left'].isDown or Teclas['Pje1_up'].isDown or Teclas['Pje1_down'].isDown)
-   then
-      self:setEstado('IDLE')
-      self.velx, self.vely = 0 , 0 
-   end
-   
-   --Veo si estoy IDLE: si mi vel es 0
-   if self:estaEnEstado({'WALK', 'RUNX', 'RUNY'}) and 
-      self.velx == 0 and self.vely == 0
-   then
-      self:setEstado('IDLE')
-      self.velx, self.vely = 0 , 0 
-   end
-]]
-
-
-
    --CAMARA: El personaje no puede salirse de los límites de la cámara
+
+   --Limites de la pantalla
+   --self.x = math.clamp(self.x,0, SCREEN_WIDTH - self.currentFrame:getWidth()*self.scale) --Se le podría agregar un "acell = 0 y vel=0" en los casos que choca, si fuera más pro
+   --self.y = math.clamp(self.y,0, SCREEN_HEIGHT)
 
    if self.isCamLocked and camera.mode == 'center' then
       self.x = math.clamp(self.x, camera.x, camera.x + camera:getWidth() - self.w/2)
@@ -478,6 +458,7 @@ end
 -- y otra "externa". Y vos solo seteas duro la propia y las externas van con aceleracion.
 function Personaje:init_idle()
    self.velx, self.vely = 0,0
+   self.accx, self.accy = 0,0
 end
 
 
@@ -600,7 +581,17 @@ function Personaje:updateHurt1(dt)
       return
    end
 
+
    self.hurt1_timer = self.hurt1_timer + dt
+
+
+   --Los personajes al pelear se imprimen knockback.
+   --Esto se hace seteando una velocidad en direccion del gole
+   --Para ir frenando, se setea una aceleracion que va decreciento
+
+   self.accx = self.accx*(1-self.hurt1_timer/hurt1_timer_max)
+   self.accy = self.accy*(1-self.hurt1_timer/hurt1_timer_max)
+
 end
 
 

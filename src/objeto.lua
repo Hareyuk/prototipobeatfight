@@ -359,10 +359,18 @@ function Objeto:imprimirKnockback(otroObjeto)
 
    --Todo: Normalizar segun otro tipo de distancia (ej no es lo mismo si golpea con la puntita que con el mango de la espada)
 
+   --Todo: Hacerlo proporcional a la velocidad del que ataca (ej si viene corriendo empuja mas lejos)
+
 
    --Ahora, le agrego velocidad en esa direccion al otro multiplicada por la potencia de knockback del ataque
-   otroObjeto.velx = otroObjeto.velx + self.atkKnockback/100*dx
-   otroObjeto.vely = otroObjeto.vely + self.atkKnockback/100*dy
+   otroObjeto.velx = otroObjeto.velx + self.atkKnockback/20*dx
+   otroObjeto.vely = otroObjeto.vely + self.atkKnockback/20*dy
+
+   --Para que frene, le imprimo aceleracion de freno
+   --Esto se va desacelerando en el hurt
+   otroObjeto.accx = -10*otroObjeto.velx
+   otroObjeto.accy = -10*otroObjeto.vely
+ 
 
 
 end
