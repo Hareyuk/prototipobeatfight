@@ -44,6 +44,7 @@ dt_RUN = 400 --ms. Tiempo maximo permitido entre dos aprietes de tecla consecuti
 dt_DASH = 150 --ms. Tiempo maximo permitido para soltar la tecla desde la ultima apretada para ver si corre o dashea
 dash_timer_max = 300/1000 --s  tiempo que dura el dasheo
 
+atk1_timer_max = 200/1000 --s, tiempo que tengo para encadenar el ataque1
 
 --Constructor
 function Personaje:new(id)
@@ -68,8 +69,8 @@ function Personaje:new(id)
    self:addEstado('IDLE', "knight/idle-h/", Personaje.init_idle, nil, 'Derecha')
    self:addOrientacionEstado('IDLE', "knight/idle-up/",  'Arriba')
    self:addOrientacionEstado('IDLE', "knight/idle-down/",'Abajo')
-   self:addOrientacionEstado('IDLE', "knight/idle-h/",  'Izquierda')  --Todo: Pensar si dejar asi o si se resuelve de otra manera
-
+   self:addOrientacionEstado('IDLE', "knight/idle-h/",  'Izquierda')  
+   --Todo: Pensar si resolver de otra manera las orientaciones izq (no repetir sprites en memoria)
 
    self:addEstado('WALK', "knight/walk-h/", nil, Personaje.update_walk, 'Derecha')
    self:addOrientacionEstado('WALK', "knight/walk-up/", 'Arriba')
@@ -87,7 +88,13 @@ function Personaje:new(id)
    self:addOrientacionEstado('DASH', "knight/dash-down/",'Abajo')
    self:addOrientacionEstado('DASH', "knight/dash-h/",'Izquierda')
 
+   self:addEstado('ATK11', "knight/atk11-h/", Personaje.initAtk1, Personaje.updateAtk1, 'Derecha')
+   self:addOrientacionEstado('ATK11', "knight/atk11-up/", 'Arriba')
+   self:addOrientacionEstado('ATK11', "knight/atk11-down/",'Abajo')
+   self:addOrientacionEstado('ATK11', "knight/atk11-h/",'Izquierda')
 
+
+   
 
    --self:addEstado('ATK1', "pje/boxtest/")
    
@@ -190,9 +197,7 @@ function Personaje:addCollisionBoxPies()
    for i, estado in pairs(self.estados) do
       print('Creando colisiones en estado ' .. estado.name)
       for j, frame in pairs(estado.frames) do
-         print(frame.name)
          for k, frame_orientacion in pairs(frame) do
-            print(frame_orientacion)
             frame_orientacion.collisionbox = Box:new(pie_x, pie_y, pie_w,  pie_h)
          end
       end
@@ -350,23 +355,6 @@ end
 
 
 
-------------------------------------  ATAQUES 
-function Personaje:comandoAtk1Press()
-   self:setEstado('ATK1')
-   self.scale = 0.3
-end
-
-
-function Personaje:keypressed(key)
-   if key == 'right' then self.velx = self.velx + self.v0
-      self.orientacionX = Orientaciones.DERECHA
-
-   elseif key == 'left' then self.velx = self.velx - self.v0
-      self.orientacionX = Orientaciones.IZQUIERDA 
-   end
-end
-
-
 --------------------      DASH      ------------------------
 
 --Se llama cuando se entra al dash. Podría ser parte de una funcion de estado tambien en vez de personaje
@@ -499,3 +487,27 @@ end
 --Otra idea para la logica del movimiento, para pensar:
 --Cuando presiono -->, pongo tecla_izq.isDown = false. 
 --Cuando suelto -->, chequeo con love y seteo tecla_izq acordemente. 
+
+
+
+------------------------------------  ATK1 
+function Personaje:comandoAtk1Press()
+   if(self:estaEnEstado({'IDLE', 'WALK'})) then self:setEstado('ATK11') end
+end
+
+function Personaje:initAtk1()
+   self.atk1_timer = 0
+end
+
+function Personaje:updateAtk1(dt)
+
+
+   if(self.atk1_timer >= atk1_timer_max) then
+      self:setEstado('IDLE')
+      return
+   end
+
+   self.atk1_timer = self.atk1_timer + dt
+   --todo: Ver si voy a las otras fases
+
+end

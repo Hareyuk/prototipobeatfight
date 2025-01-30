@@ -93,7 +93,7 @@ comandos['p_right'] = Personaje.comandoRightPress
 comandos['p_left'] = Personaje.comandoLeftPress
 comandos['p_up'] = Personaje.comandoUpPress
 comandos['p_down'] = Personaje.comandoDownPress
-comandos['atk1'] = nil
+comandos['atk1'] = Personaje.comandoAtk1Press
 comandos['grow'] = nil
 comandos['shrink'] = nil
 
@@ -104,7 +104,8 @@ comandos_release['p_right'] = Personaje.comandoRightRelease
 comandos_release['p_left'] = Personaje.comandoLeftRelease
 comandos_release['p_up'] = Personaje.comandoUpRelease
 comandos_release['p_down'] = Personaje.comandoDownRelease
-comandos_release['atk1'] = nil
+comandos_release['atk1'] = nada
+
 
 
 Teclas['q'] = Tecla:new('q')
@@ -160,6 +161,9 @@ function love.keyreleased(key)
 
    tecla.isDown = false
 
+
+
+   --Todo repensar seriamente todo esto que me está trayendo varios problemas
    --Si es un comando de J1, lo ejecuto   
    if esClave(key, mapaTeclas_P1)  then 
       comando = mapaTeclas_P1[key]

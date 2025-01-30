@@ -325,7 +325,12 @@ end
 
 function Objeto:checkHit(otroObjeto)
    
+   --print('Chequeando Hit de ' .. self.name .. ' a ' .. otroObjeto.name)
+
+   --print('Loading hurtbox de ' .. otroObjeto.name)
    local htbox = self:getFrameActual().hitbox 
+
+  ---print('Loading hitbox de ' .. self.name)
    local hurtbox = otroObjeto:getFrameActual().hurtbox
 
    if not htbox or not hurtbox then return end
@@ -341,10 +346,19 @@ end
 
 function Objeto:checkMvtColl(otroObjeto)
 
+   --print('Chequeando colision de ' .. self.name .. ' a ' .. otroObjeto.name)
+
+   --print('Loading collision box de ' .. self.name)
    local collbox1 = self:getFrameActual().collisionbox 
+
+
+   --print('Loading collision box de ' .. otroObjeto.name)
    local collbox2 = otroObjeto:getFrameActual().collisionbox
 
+
    if not collbox1 or not collbox2 then return end
+
+  -- print('Ambos tienen collbox. Calculando colision:')
 
    if not Objeto:haySolapamiento(self, collbox1, otroObjeto, collbox2) then return end
 

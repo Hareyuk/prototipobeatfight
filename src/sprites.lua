@@ -92,8 +92,8 @@ function cargarFramesYHitboxes(carpeta)
       local img = love.graphics.newImage(carpeta .. filename) --Esto se puede dibujar en pantalla
       local imgData = love.image.newImageData(carpeta .. filename) --No se puede dibujar, pero puedo acceder a los pixeles. con el otro no
 
-      if     string.find (filename, 'hitbox') then table.insert(hbox_imgs,imgData) --Si el file tiene info de hitbox paso
-         elseif string.find (filename, 'hurtbox') then table.insert(hurtbox_imgs,imgData)
+      if     string.find (filename, 'hit') then table.insert(hbox_imgs,imgData) --Si el file tiene info de hitbox paso
+         elseif string.find (filename, 'hurt') then table.insert(hurtbox_imgs,imgData)
          elseif string.find (filename, 'coll') then table.insert(collisions_imgs,imgData)
          else  table.insert(frames, Frame:new(img)); frames[#frames].name = filename
       end
@@ -138,7 +138,7 @@ function getXYWH(imgdata)
     local x, y, x2,y2 = W,H,0, 0
     local umbral = 0.5 --umbral de "energia" para ver si un pixel está encendido
 
-    local step = 2
+    local step = 5
     --Primero busco los vertices sup izq e inf der
     for c = 0, W-1, step do -- columna
       for f = 0, H-1, step do -- fila
@@ -154,12 +154,14 @@ function getXYWH(imgdata)
          end
       end
 
-   --print(x,y,x2,y2)
+   print(x,y,x2,y2)
    --Y ahora calculo el ancho y alto (se... carisimo... dos pasadas. Pero bueno)
 
     w = x2-x
     h = y2-y
 
+    if(w > 0) then print 'Box encontrada!' 
+    else print ' Hitbox vacia' ; return nil, nil, nil, nil end
    --print(x,y,w,h)
    return x,y,w,h
 end
