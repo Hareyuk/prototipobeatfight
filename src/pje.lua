@@ -47,6 +47,8 @@ dash_timer_max = 300/1000 --ms  tiempo que dura el dasheo
 atk1_timer_max = 500/1000 --ms, tiempo que tengo para encadenar el ataque1
 hurt1_timer_max = 300/1000 --Tiempo que dura el daño1
 
+Pjes = {} -- Lista de personajes
+
 --Constructor
 function Personaje:new(id)
    print("Creando personaje: " .. id)
@@ -114,10 +116,7 @@ function Personaje:new(id)
    
 
    --self:addEstado('ATK1', "pje/boxtest/")
-   
 
-   --DIMENSIONES REALES 
-   self.true_x =
 
    --Estado actual
    self:setEstado('IDLE')   
@@ -165,12 +164,15 @@ function Personaje:new(id)
    ]]
 
    print("Personaje creado!")
+
+   Pjes[id] = self --Agrego a la lista global de personajes
    
    return self
 end
 
 --Para dibujar al Knight, tomo las coordenadas (x,y)  centrales del frame. 
 --Todo: Por ahora NADA distinto al frame de objeto. Puede volar
+
 function Personaje:drawFrame()
 
    local sp = self:getFrameActual().imagen --sprite a dibujar, es una imagen
@@ -178,6 +180,7 @@ function Personaje:drawFrame()
    --local x,y = self.x + self.w/2, self.y + self.h/2
    local x,y = self.x, self.y
 
+   --Todo cambiar acá que se use el frame para OrDerecha. Asi no hay que guardar duplicados 
    if self.orientacion == 'Izquierda' then
       drawImage2Izq(sp, x, y, self.scale)
 
@@ -260,6 +263,12 @@ function Personaje:addDurationFrames()
    end
 end   
 
+--Todo
+--Copia los frames de un estado a otro
+--En realidad, no se copia sino que se hace una referenca
+function Personaje:copiarFrames(estado_from, estado_to)
+end
+
 
 
 --TODO todos los chequeos de teclas tienen que indexarse de otra manera
@@ -326,29 +335,25 @@ end
 
 --Recibe un "mover a la derecha"
 --Tecla id: 'Pje1_right'
-function Personaje:comandoRightPress(tecla)
+function Personaje:comandoRightPress()
 
-   print('Hola!! Soy ' .. self.name)
-   self:comandoMovtPress(tecla, 'Derecha')
-
-  --print(Teclas['Pje1_right']:calcular_dt(), Teclas['Pje1_right'].last_pressed_time)
-
+   self:comandoMovtPress(self.teclas['p_right'], 'Derecha')
 end
 
 --Recibe un "mover a la izquierda"
-function Personaje:comandoLeftPress(tecla)
+function Personaje:comandoLeftPress()
 
-   self:comandoMovtPress(tecla, 'Izquierda')
+   self:comandoMovtPress(self.teclas['p_left'], 'Izquierda')
 end
 
 
 --Recibe un "mover arriba"
 function Personaje:comandoUpPress(tecla)
-   self:comandoMovtPress(tecla, 'Arriba')
+   self:comandoMovtPress(self.teclas['p_up'], 'Arriba')
 end
 
 function Personaje:comandoDownPress(tecla)
-   self:comandoMovtPress(tecla, 'Abajo')
+   self:comandoMovtPress(self.teclas['p_down'], 'Abajo')
 end
 
 
@@ -369,23 +374,23 @@ function Personaje:comandoMovtRelease(tecla, orientacion)
 end
 
 --Recibe un "ya no se mueve a la derecha"
-function Personaje:comandoRightRelease(tecla)
-   self:comandoMovtRelease(tecla, 'Derecha')
+function Personaje:comandoRightRelease()
+   self:comandoMovtRelease(self.teclas['p_right'], 'Derecha')
 end
 
 --Recibe un "ya no se mueve a la izquierda"
-function Personaje:comandoLeftRelease(tecla)
-   self:comandoMovtRelease(tecla, 'Izquierda')
+function Personaje:comandoLeftRelease()
+   self:comandoMovtRelease(self.teclas['p_left'], 'Izquierda')
 end
 
 --Recibe un "ya no se mueve arriba"
-function Personaje:comandoUpRelease(tecla)
-   self:comandoMovtRelease(tecla, 'Arriba')
+function Personaje:comandoUpRelease()
+   self:comandoMovtRelease(self.teclas['p_up'], 'Arriba')
 end
 
 --Recibe un "ya no se mueve abajo"
-function Personaje:comandoDownRelease(tecla)
-   self:comandoMovtRelease(tecla, 'Abajo')
+function Personaje:comandoDownRelease()
+   self:comandoMovtRelease(self.teclas['p_down'], 'Abajo')
 end
 
 
@@ -595,4 +600,7 @@ function Personaje:updateHurt1(dt)
 end
 
 
-
+--Se llama cuando otro objeto lo golpea
+function Personaje:recibirHit(otroObjeto)
+   self:setEstado('HURT1')
+end

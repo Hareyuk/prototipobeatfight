@@ -33,58 +33,34 @@ end
 
 --Primero me hago una unica tabla que tenga todas las teclas que reconozco, y a que jugador le pertenecen
 
---Todo: No hay escape a lo del prefijo sin sobrecomplicarla. Volver a lo anterior
-Keybindings = {}
-
-
 --Es un diccionario de comandoName --> Tecla (ej 'saltar' --> Teclas['spacebar'])
 mapaTeclas_P1 = {
 
    --Personaje 1
-   right =  'p_right', --tecla derecha
-   left  =  'p_left',  --tecla izquierda
-   up    =  'p_up',
-   down  = 'p_down', 
-   z = 'atk1',
-   ['1'] = 'grow',
-   ['2'] = 'shrink'
+   p_right = 'right', --tecla derecha
+   p_left  =  'left',  --tecla izquierda
+   p_up    =  'up',
+   p_down  = 'down', 
+   atk1 = 'z',
+   grow = '1',
+   shrink = '2'
 }
 
 
 --Personaje 2
 mapaTeclas_P2 = {
-   d =  'p_right', --tecla derecha
-   a  =  'p_left',  --tecla izquierda
-   w    =  'p_up',
-   s  = 'p_down', 
-   f = 'atk1',
-   x = 'grow',
-   c = 'shrink'
+   p_right = 'd', --tecla derecha
+   p_left  =  'a',  --tecla izquierda
+   p_up    =  'w',
+   p_down  = 's', 
+   atk1 = 'f',
+   grow = '3',
+   shrink = '4'
 }
 
---Ahora, creo un objeto Tecla por cada tecla, y le asigno al mapa de cada jugador lo que le corresponde
 
-Teclas = {}
---La motivacion es que esto me permite luego hacer Personaje.teclas['saltar'] --> devuelve la Tecla para ese comando
-for key, command in pairs(mapaTeclas_P1) do
-
-   Teclas[key] = Tecla:new(key)
-
-   mapaTeclas_P1[command] = Teclas[key] 
-
-   print(key, command)
-
-end
-
-for key, command in pairs(mapaTeclas_P2) do
-   Teclas[key] = Tecla:new(key)
-   mapaTeclas_P2[command] = Teclas[key]
-end
-
-
---Asigno keybidings de teclas (comandos) a funciones de personaje.
+--Asigno keybindings de teclas (comandos) a funciones de personaje.
 comandos = {}
-
 comandos['p_right'] = Personaje.comandoRightPress
 comandos['p_left'] = Personaje.comandoLeftPress
 comandos['p_up'] = Personaje.comandoUpPress
@@ -103,8 +79,25 @@ comandos_release['p_down'] = Personaje.comandoDownRelease
 comandos_release['atk1'] = nada
 
 
+--Ahora, creo un objeto Tecla por cada tecla, y le asigno al mapa de cada jugador lo que le corresponde
+Teclas = {}
 
-Teclas['q'] = Tecla:new('q')
+--mapaComandos_Global['z'] --> (1, atk1)
+mapaTeclas_Global = {}
+
+for commandname, keyname in pairs(mapaTeclas_P1) do
+   mapaTeclas_Global[keyname] = {1,commandname}
+   Teclas[keyname] = Tecla:new(keyname)
+   mapaTeclas_P1[commandname] = Teclas[keyname] --Piso el nombre de tecla por la tecla completa
+end
+
+for commandname, keyname in pairs(mapaTeclas_P2) do
+   mapaTeclas_Global[keyname] = {2,commandname}
+   Teclas[keyname] = Tecla:new(keyname)
+   mapaTeclas_P2[commandname] = Teclas[keyname] --Piso lo anterior
+end
+
+
 ---------------------------------------------------------------------------------
 
 --This function is called whenever a keyboard key is pressed and receives the key that was pressed. The key can be any of the constants. 
@@ -116,19 +109,15 @@ function love.keypressed(key)
 
    tecla.isDown = true
 
-   --Si es un comando de J1, lo ejecuto   
-   if esClave(key, mapaTeclas_P1)  then  --tecla.name es == key
+   --Si es un comando, lo ejecuto   
+   if esClave(key, mapaTeclas_Global)  then  --tecla.name es == key
       print('Soy ' .. key)
-      comando = mapaTeclas_P1[key]
-      comandos[comando](pje1, tecla) --Hago que el pje ejecute este comando
+      local pjei, commandname = mapaTeclas_Global[key][1], mapaTeclas_Global[key][2] 
+      print(pjei, commandname)
+
+      comandos[commandname](Pjes[pjei]) --Hago que el pje ejecute este comando
    end
 
-   --Si es un comando de J2, lo ejecuto   
-   if esClave(key, mapaTeclas_P2)  then  --tecla.name es == key
-      print('Soy ' .. key)
-      comando = mapaTeclas_P2[key]
-      comandos[comando](pje2, tecla)
-   end
 
    if key == 'return' then avanzarTexto()
 
@@ -157,20 +146,10 @@ function love.keyreleased(key)
 
    tecla.isDown = false
 
-
-
-   --Todo repensar seriamente todo esto que me está trayendo varios problemas
-   --Si es un comando de J1, lo ejecuto   
-   if esClave(key, mapaTeclas_P1)  then 
-      comando = mapaTeclas_P1[key]
-      comandos_release[comando](pje1, tecla)
+   if esClave(key, mapaTeclas_Global)  then  --tecla.name es == key
+      print('Soy ' .. key)
+      local pjei, commandname = mapaTeclas_Global[key][1], mapaTeclas_Global[key][2] 
+      comandos_release[commandname](Pjes[pjei]) --Hago que el pje ejecute este comando
    end
 
-
-   --Si es un comando de J2, lo ejecuto   
-   if esClave(key, mapaTeclas_P2)  then 
-      comando = mapaTeclas_P2[key]
-      comandos_release[comando](pje2, tecla)
-   end
 end  
-
