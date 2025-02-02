@@ -13,6 +13,7 @@ require "camera" --Para fondos scrolleables, zoom en lugares, etc
 require "cursor" --Para el mouse bonito
 require "fondo"
 require "texto"
+require "Spikeball"
 
 
 DEBUG = true -- muestra cosas como coordenadas de personajes, botones apretados y tiempos, etc
@@ -48,6 +49,8 @@ function love.load()
    columna1 = Columna:new(600, SCREEN_HEIGHT*1.1)
    columna2 = Columna:new(900, SCREEN_HEIGHT*1.1)
 
+   spikeball = Spikeball:new(1)
+
    fondo = Fondo:crear() 
    crearTextos()
    crearTextosDebug()
@@ -57,6 +60,7 @@ function love.load()
    table.insert(objetos, cursor)
    table.insert(objetos, columna1)
    table.insert(objetos, columna2)
+   table.insert(objetos, spikeball)
 
    --cargarMusica()
 
@@ -183,7 +187,7 @@ end
 
 function love.mousepressed(x, y, button, istouch)
    --if button == 1 then end
-   if button == 1 then cursor:cambiarCursor() end
+   if button == 1 then cursor:cambiarCursor() ; fondo:cambiarFondo() end
 end
 --This function is called whenever a mouse button is pressed.  it receives the button and the coordinates of where it was pressed. 
 

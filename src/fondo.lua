@@ -19,7 +19,8 @@ function Fondo:crear()
 
    self:addEstado('castillo1', "fondos/castle1/")
    self:addEstado('castillo2', "fondos/castle2/")
-   
+   self:addEstado('pasillo1', "fondos/pasillo largo/")
+
    self:setEstado('castillo1')
 
    self.fondo_i = 1
@@ -37,8 +38,10 @@ function Fondo:update(dt)
 end
 
 function Fondo:cambiarFondo()
-   self.fondo_i = (self.fondo_i % #self.sprites)  + 1
-   self.currentStateFrames = self.sprites[Fondo.fondo_i]
+   self.fondo_i = (self.fondo_i + 1)% #self.estados + 1
+
+   self:setEstado(next(self.estados))
+
 end  
    
 

@@ -333,6 +333,8 @@ function Objeto:checkHit(otroObjeto)
   ---print('Loading hitbox de ' .. self.name)
    local hurtbox = otroObjeto:getFrameActual().hurtbox
 
+   --TODO: Parry (que los dos pjes se empujen si chocan los hitboxes)
+
    if not htbox or not hurtbox then return end
 
    if not Objeto:haySolapamiento(self, htbox, otroObjeto, hurtbox) then return end
@@ -341,7 +343,7 @@ function Objeto:checkHit(otroObjeto)
    
    print('Ataque de ' ..self.name .. ' a '..otroObjeto.name)
 
-   otroObjeto:setEstado('HURT1')
+   otroObjeto:recibirHit(self) --Le dice al otro objeto que procese el hit
    
    --Si empuja, le cambio la velocidad al otro
    if self.atkKnockback then
@@ -353,6 +355,9 @@ end
 
 --Esto se llama cuando un objeto hitea a otro, y le imprime un cierto empuje
 function Objeto:imprimirKnockback(otroObjeto)
+
+   --Todo: Daño y knockback dependen de que tanto en el frame está el ataque
+   --EJ: Si recien saco la espada, es daño completo. SI la saco hace varios frames, saca mucho menos
 
    --Hallo vector de separacion = direccion a imprimir vel
    local dx, dy = (otroObjeto.x - self.x), (otroObjeto.y - self.y) 
@@ -420,3 +425,7 @@ function compararSegunY(obj1, obj2)
 --   return obj1:getFrameActual().imagen:getHeight()*obj1.scale + obj1.y < obj2:getFrameActual().imagen:getHeight()*obj2.scale + obj2.y
 
 end
+
+--Funcion a llamar cuando un objeto recibe daño de otro
+--Cada tipo de objeto la procesa a su propia manera
+function Objeto:recibirHit() return end

@@ -111,10 +111,8 @@ function love.keypressed(key)
 
    --Si es un comando, lo ejecuto   
    if esClave(key, mapaTeclas_Global)  then  --tecla.name es == key
-      print('Soy ' .. key)
       local pjei, commandname = mapaTeclas_Global[key][1], mapaTeclas_Global[key][2] 
       print(pjei, commandname)
-
       comandos[commandname](Pjes[pjei]) --Hago que el pje ejecute este comando
    end
 

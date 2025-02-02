@@ -3,6 +3,8 @@
 
 Estado = {
          frames = nil,     --Array de frames. Un frame guarda imagen, hitbox, hurtbox y collision box
+                           --Todo: Los pjes con orientacion acceden como self.frames[orientacion]. Los otros como self.frames
+                           --Se podria simplificar teniendo self.framesH, self.framesUp, self.framesDown. Pero bueno
          currentFrame_t = 1, --timer para pasar de frames.
          currentFrame_i = 1, --indice al frame actual.  Es floor() del timer. Por comodidad lo doy como una variable aparte. Podría ser un método.
          name = '', --id para encontrarlo o acceder a él desde un personaje

@@ -55,3 +55,9 @@ end
 function dist1_scaled(obj1, obj2)
     return math.abs(obj1.x - obj2.x)/SCREEN_WIDTH + math.abs(obj1.y - obj2.y)/SCREEN_HEIGHT
 end
+
+
+--Si   |val| < eps, devuelve 0. Sino, deja val
+function math.reduceto0(val, eps)
+  if(math.abs(val) < eps) then return 0 else return val end
+end
