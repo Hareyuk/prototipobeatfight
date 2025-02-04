@@ -52,7 +52,6 @@ function love.load()
    spikeball = Spikeball:new(1)
 
    fondo = Fondo:crear() 
-   crearTextos()
    crearTextosDebug()
 
    table.insert(objetos, pje1)

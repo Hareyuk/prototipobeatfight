@@ -15,13 +15,7 @@ function crearTextos()
    font = love.graphics.newFont("font/PinyonScript-Regular.ttf", 60)
    love.graphics.setFont(font)
 
-
-   --love.graphics.setColor(0,0,0)
-   --love.graphics.setColor(0,0,0)
-  --- love.graphics.setBackgroundColor(1,1,1)
-
-   textoActual_i = 1 -- Por defecto los arrays se indizan desde 1
-   textos = {"Mi pliki", "Eres...", "La mejor!!!"}
+   textos = {}
 
    for line in love.filesystem.lines("poema.txt") do
      table.insert(textos, line)
