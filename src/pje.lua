@@ -18,14 +18,14 @@ Estados_Pje ={
    IDLE = 1,
    WALK = 2,
    DASH = 3,
-   RUN  = 3.5,
-   ATK1 = 4,
-   ATK2 = 5,
-   INTERACT = 6,
-   HURT1 = 7,
-   HURT2 = 8,
-   SHIELD = 9,
-   RECOVER = 10
+   RUN  = 4,
+   ATK1 = 5,
+   ATK2 = 6,
+   INTERACT = 7,
+   HURT1 = 8,
+   HURT2 = 9,
+   SHIELD = 10,
+   RECOVER = 11
 }
 
 --Creo la clase Personaje como Hija de Objeto. Las cosas nuevas las agrego abajo, en el "constructor" (el nombre "new" es generico, no necesario)
@@ -532,15 +532,15 @@ end
 
 
 ------------------------------------  ATK1 
-function Personaje:comandoAtk1Press(tecla)
+function Personaje:comandoAtk1Press()
    if(self:estaEnEstado({'IDLE', 'WALK', 'RUN'})) then self:setEstado('ATK11'); return end
 
-   if(self:estaEnEstado({'ATK11'}) and tecla:dt_last_press() < atk1_timer_max) then
+   if(self:estaEnEstado({'ATK11'}) and self.teclas['atk1']:dt_last_press() < atk1_timer_max) then
       self:setEstado('ATK12')
       return
    end
 
-   if(self:estaEnEstado({'ATK12'}) and tecla:dt_last_press() < atk1_timer_max) then
+   if(self:estaEnEstado({'ATK12'}) and  self.teclas['atk1']:dt_last_press() < atk1_timer_max) then
       self:setEstado('ATK13')
       return
    end
