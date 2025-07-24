@@ -19,7 +19,7 @@ function Cursor:crear()
    self:addEstado('cora3', "cursor/cora3/")
    self:addEstado('cora4', "cursor/cora4/")
 
-   self:setEstado('cora1')
+   self:setEstado('cora2')
 
 
    self:setScale(0.2)

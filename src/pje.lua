@@ -34,6 +34,7 @@ Personaje = setmetatable({}, Objeto)
 Personaje.__index = Personaje
 
 
+
 --[[
    Agrega los atributos (detallar)
 
@@ -195,7 +196,7 @@ function Personaje:drawFrame()
 
 
 
-      self:mostrarHurtbox()
+      --self:mostrarHurtbox()
       self:mostrarCollisionbox()
       self:mostrarHitbox()
    end
@@ -205,6 +206,7 @@ end
 
 --Agrego colisiones en los pies
 --Todo ver por qué pinga self.estados es siempre tabla vacía
+--Todo si el collbox va a ser fijo para todos los estados, puedo simplificar y hacer uno solo para el personaje. Eso lo veo al final de todo
 function Personaje:addCollisionBoxPies()
 
    local pie_x, pie_w = self.w*0.6, self.w*0.4

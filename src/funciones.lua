@@ -61,3 +61,22 @@ end
 function math.reduceto0(val, eps)
   if(math.abs(val) < eps) then return 0 else return val end
 end
+
+
+
+--Funcion para decidir en que orden se grafican las cosas. Decido que se grafique primero lo que está "más abajo".
+--Como se determina eso, bueno, por ahora lo decidí así
+--Asi grafica ultimo el que está más abajo (en primer plano el que tiene mayor coord y en el pie) 
+--Podria poner algun pequeño offset a obj1 para que obj2 tenga que estar cierto umbral mas abajo de el para empezar a estar adelante.
+--Como la tabla se recorre en el orden actual me imagino, esto tendria sentido
+--Se veia mejor antes del update en que saque h*self.scale, asi que por eso propongo esa
+function compararSegunY(obj1, obj2)
+
+  --Los "y" absolutos de los collision boxes se pueden guardar y actualizar frame a frame en el update del objeto en vez de çalcular aca
+
+    --Comparo los pies de cada sprite
+    yInferior1, yInferior2 = obj1:bordeInferiorY(), obj2:bordeInferiorY()
+
+    return  yInferior1  < yInferior2 
+
+end

@@ -127,9 +127,6 @@ function Objeto:update(dt)
    self:updatePosition(dt)
    self:updateEstado(dt)
    self:ciclarFrames(dt)
-
-
-
 end
 
 
@@ -144,9 +141,9 @@ function Objeto:mostrarBox(boxtype) --muestra uno de los tres tipos de hitbox, c
    love.graphics.push('all')
 
    local alpha = 0.8
-   if(boxtype == 'hitbox') then love.graphics.setColor(1,0,0, alpha)
-   elseif (boxtype == 'hurtbox') then love.graphics.setColor(0,0,1, alpha)
-   elseif (boxtype == 'collisionbox') then  love.graphics.setColor(0,1,0, alpha)
+   if(boxtype == 'hitbox') then love.graphics.setColor(1,0,0, alpha) --R
+   elseif (boxtype == 'hurtbox') then love.graphics.setColor(0,0,1, alpha) --B
+   elseif (boxtype == 'collisionbox') then  love.graphics.setColor(0,1,0, alpha) --G
    end
 
    --print(box.x, box.y, box.w, box.h)
@@ -194,12 +191,10 @@ function Objeto:drawFrame()
 
    --El pje mira hacia la izquierda
    if self.orientacion == 'Izquierda' then
-      --drawImage(sp, self.x, self.y, -self.w, self.h, self.w,0)
       drawImage2Izq(sp, self.x, self.y, self.scale)
    --El pje mira hacia la derecha, arriba o  abajo
    --Nota: Todo esto se podría optimizar, ya se sabe, usando un unico digito para la orientacion y eso
    else 
-      --drawImage(sp, self.x, self.y, self.w, self.h, 0,0)
       drawImage2(sp, self.x, self.y, self.scale, 0)
    end
 
@@ -209,7 +204,7 @@ function Objeto:drawFrame()
       self:mostrarCentro()
 
 
-      self:mostrarHurtbox()
+      --self:mostrarHurtbox()
       self:mostrarCollisionbox()
       self:mostrarHitbox()
       
@@ -217,6 +212,23 @@ function Objeto:drawFrame()
 
    love.graphics.pop()
 
+end
+
+
+--La coordenada y del "pie" del sprite (borde inferior)
+-- Si el objeto tiene collisionbox, en su lugar usa el borde inferior del collisionbox
+function Objeto:bordeInferiorY()
+
+
+    local colbox= self:collisionbox()
+
+    if colbox then y_inferior = self.y + colbox.y*self.scale + colbox.h*self.scale 
+    else y_inferior = self.y + self.h end --self.h ya se actualiza con self.scale. Los collisionbox no
+
+    return y_inferior
+
+    --   Mas preciso: Calcula la altura y ancho en cada frame.
+   --return obj1:getFrameActual().imagen:getHeight()*obj1.scale + obj1.y 
 end
 
 
@@ -274,10 +286,14 @@ end
 --Muestra los bordes del frame actual 
 function Objeto:mostrarBordes()
 
+   --local w, h = self:getWH()
    love.graphics.rectangle('line', self.x
                                  , self.y
+                                 --, w
+                                 --, h
                                  , self.w
-                                 , self.h) 
+                                 , self.h
+                           )
    return
 end
 
@@ -323,15 +339,30 @@ function Objeto:haySolapamiento(obj1, box1, obj2, box2)
 
 end
 
+
+
+function Objeto:collisionbox()
+   return self:getFrameActual().collisionbox
+end
+
+function Objeto:hitbox()
+   return self:getFrameActual().hitbox
+end
+
+function Objeto:hurtbox()
+   return self:getFrameActual().hurtbox
+end
+
+
 function Objeto:checkHit(otroObjeto)
    
    --print('Chequeando Hit de ' .. self.name .. ' a ' .. otroObjeto.name)
 
    --print('Loading hurtbox de ' .. otroObjeto.name)
-   local htbox = self:getFrameActual().hitbox 
+   local htbox = self:hitbox() 
 
   ---print('Loading hitbox de ' .. self.name)
-   local hurtbox = otroObjeto:getFrameActual().hurtbox
+   local hurtbox = otroObjeto:hurtbox()
 
    --TODO: Parry (que los dos pjes se empujen si chocan los hitboxes)
 
@@ -385,11 +416,11 @@ function Objeto:checkMvtColl(otroObjeto)
    --print('Chequeando colision de ' .. self.name .. ' a ' .. otroObjeto.name)
 
    --print('Loading collision box de ' .. self.name)
-   local collbox1 = self:getFrameActual().collisionbox 
+   local collbox1 = self:collisionbox()
 
 
    --print('Loading collision box de ' .. otroObjeto.name)
-   local collbox2 = otroObjeto:getFrameActual().collisionbox
+   local collbox2 = otroObjeto:collisionbox()
 
 
    if not collbox1 or not collbox2 then return end
@@ -399,7 +430,7 @@ function Objeto:checkMvtColl(otroObjeto)
    if not Objeto:haySolapamiento(self, collbox1, otroObjeto, collbox2) then return end
 
    --Else: Sí hay solapamiento. Les digo a los dos objetos que no pueden moverse
-   --Todo: Luego hay condiciones como "está en estado idle" o cosas así
+   --Todo: Luego hay condiciones como "está en estado idle" o cosas así, o que uno empuja a otro si es empujable, esas cosas
    self:noMover()
    otroObjeto:noMover()
 
@@ -412,19 +443,7 @@ function Objeto:noMover()
 end
 
 
---Funcion para decidir en que orden se grafican las cosas. Decido que se grafique primero lo que está "más abajo".
---Como se determina eso, bueno, por ahora lo decidí así
---Asi grafica ultimo el que está más abajo (en primer plano el que tiene mayor coord y en el pie) 
-function compararSegunY(obj1, obj2)
 
-   --Mas rapido: Usa las dimensiones preguardadas
-    return obj1.h*obj1.scale + obj1.y < obj2.h*obj2.scale + obj2.y
-
-
---   Mas preciso: Calcula la altura y ancho en cada frame.
---   return obj1:getFrameActual().imagen:getHeight()*obj1.scale + obj1.y < obj2:getFrameActual().imagen:getHeight()*obj2.scale + obj2.y
-
-end
 
 --Funcion a llamar cuando un objeto recibe daño de otro
 --Cada tipo de objeto la procesa a su propia manera

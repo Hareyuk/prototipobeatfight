@@ -17,6 +17,8 @@ Estado = {
 
 --Expandir luego acá con los hitboxes y demás
 
+-- Estaria bueno que todos los estados tengan fase inicial, para no tener cosas como entrar en la fase de hitbox y hitear en el mismo frame
+
 Estado.__index = Estado --Crea clase
 
 function nada() end --para no pensar mucho cuando tengo que llamar a init y update de estado

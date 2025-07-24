@@ -63,16 +63,6 @@ function love.load()
 
    --cargarMusica()
 
-
-
-   --CONSTANTES DE ESTADO
-   READING = 0
-   FINISHED = 1
-
-   STATUS = READING
-
-
-
 end
 
 
@@ -91,19 +81,19 @@ function love.update(dt)
 
    --fondo:update(dt)
 
-
-   --Actualizo todos los objetos
+   --Actualizo individualmente todos los objetos (sin interacciones)
+   --Calculo de nuevas posiciones, actualizacion de estados, teclas presionadas, etc
    for i_obj, objeto in ipairs(objetos) do
-
-      --Calculo de nuevas posiciones, actualizacion de estados, teclas presionadas, etc
       objeto:update(dt)
+   end
 
-       --DETECTOR DE COLISIONES DE HITS
-      -- Si el objeto está intentando hitear, veo su hitbox contra todo lo golpeable
-      -- Esto es muy pesado por cada frame. La mayoria de los objetos no hacen esto, pero estoy haciendo una busqueda "semi profunda" para darme cuenta.
-      -- Es algo que en caso de necesitarse se podría optimizar
-      -- Ej, Cada estado podria tener un bool "hits"
 
+   --DETECTOR DE COLISIONES DE HITS
+         -- Si el objeto está intentando hitear, veo su hitbox contra todo lo golpeable
+         -- Esto es muy pesado por cada frame. La mayoria de los objetos no hacen esto, pero estoy haciendo una busqueda "semi profunda" para darme cuenta.
+         -- Es algo que en caso de necesitarse se podría optimizar
+         -- Ej, Cada estado podria tener un bool "yo hiteo"
+   for i_obj, objeto in ipairs(objetos) do
       if objeto:getFrameActual().hitbox then
          for _, otroObjeto in ipairs(objetos) do
             if objeto ~= otroObjeto then 
@@ -111,24 +101,24 @@ function love.update(dt)
             end 
          end
       end
+   end
 
-
-      --DETECTOR DE COLISIONES DE MOVIMIENTO
-      --Si el objeto está intentando moverse, veo su collisionbox contra todos los demas
+    --DETECTOR DE COLISIONES DE MOVIMIENTO
+    --Si el objeto está intentando moverse, veo su collisionbox contra todos los demas
+   for i_obj, objeto in ipairs(objetos) do
       if objeto:getFrameActual().collisionbox then
          for j_obj, otroObjeto in ipairs(objetos) do
-            if j_obj > i_obj then --Para no repetir los chequeos acá, pido esta condicion 
+            if j_obj > i_obj then --Para no repetir los pares ij, ji  
                objeto:checkMvtColl(otroObjeto) 
             end
          end
       end
-
    end
 
-
-
-
+ --Llegado acá, se confirmaron todas las posiciones
+  
 end
+
 --Called continuously. 'dt' is the amount of seconds since the last time this function was called 
 -- num = num + 100 * dt would increment num by 100 per second
 
@@ -138,7 +128,7 @@ end
 --IMPORTANTISIMO: SE REDIBUJA TODO DESDE CERO CADA FRAME. ASí QUE NADA DE OPTIMIZAR EN ESTE FRAMWORK
 -- if you call any of the love.graphics.draw outside of this function then it's not going to have any effect.  
 
---Logica : Para pje1, Primero se calculan las velocidades en el update
+--Logica : Primero se calculan las posiciones en el update
 --Luego, en draw se dibuja el sprite
 function love.draw()
 
@@ -152,17 +142,14 @@ function love.draw()
 
    love.graphics.setBackgroundColor( 0.5, 0.5,0.5 , 1 )
 
-   --Por ultimo, una vez que ya calculé y acomodé todo, así sí... dibujo!!   
-
-   table.sort(objetos, compararSegunY)
+   --Por ultimo, una vez que ya calculé y acomodé todo, así sí... dibujo!!      
+   table.sort(objetos, compararSegunY) --Ordeno los objetos para dibujar primero los que están al fondo, y luego los que están adelante
 
    for i_obj, objeto in ipairs(objetos) do
       
       objeto:drawFrame()
 
    end
-   
-
 
    local color_rojo = {235/255,20/255,20/255} --rojo
    local limite_pix = 350 --limite antes del wrap
@@ -171,8 +158,6 @@ function love.draw()
 
 
    --FONDO
-
-   --mostrarTexto() 
 
    camera:unset() -- Stop looking through the camera.
 
