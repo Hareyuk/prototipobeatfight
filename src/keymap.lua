@@ -15,7 +15,11 @@ function Tecla:new(name)
 	local self = setmetatable({}, Tecla)
     self.name = name or ''
     self.padre = nil -- instancia de Personaje. Cuando se apriete una tecla, se va a llamar a una funcion del personaje
- 	return self
+ 	 self.isDown = false
+    self.last_pressed_time = 0
+   --TODO:REhacer el keymap con esta logica de padre de teclas
+   --Todo pensar si puede tener un campo de "orientacion", para las teclas de movimiento
+   return self
 end
 
 --Tiempo en ms entre ahora y cuando se presionó por ultima vez
@@ -42,6 +46,7 @@ mapaTeclas_P1 = {
    p_up    =  'up',
    p_down  = 'down', 
    atk1 = 'z',
+   atk2 = 'x',
    grow = '1',
    shrink = '2'
 }
@@ -54,6 +59,7 @@ mapaTeclas_P2 = {
    p_up    =  'w',
    p_down  = 's', 
    atk1 = 'f',
+   atk2 = 'd',
    grow = '3',
    shrink = '4'
 }
@@ -66,6 +72,7 @@ comandos['p_left'] = Personaje.comandoLeftPress
 comandos['p_up'] = Personaje.comandoUpPress
 comandos['p_down'] = Personaje.comandoDownPress
 comandos['atk1'] = Personaje.comandoAtk1Press
+comandos['atk2'] = Personaje.comandoAtk2Press
 comandos['grow'] = nil
 comandos['shrink'] = nil
 
@@ -77,6 +84,7 @@ comandos_release['p_left'] = Personaje.comandoLeftRelease
 comandos_release['p_up'] = Personaje.comandoUpRelease
 comandos_release['p_down'] = Personaje.comandoDownRelease
 comandos_release['atk1'] = nada
+comandos_release['atk2'] = Personaje.comandoAtk2Release
 
 
 --Ahora, creo un objeto Tecla por cada tecla, y le asigno al mapa de cada jugador lo que le corresponde
@@ -117,10 +125,8 @@ function love.keypressed(key)
    end
 
 
-   if key == 'return' then avanzarTexto()
 
-
-   elseif key == 'space' then fondo:cambiarFondo()
+   if key == 'space' then fondo:cambiarFondo()
 
    elseif key == 'escape' then love.quit()
 

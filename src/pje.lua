@@ -46,7 +46,13 @@ dt_DASH = 150/1000 --ms. Tiempo maximo permitido para soltar la tecla desde la u
 dash_timer_max = 300/1000 --ms  tiempo que dura el dasheo
 
 atk1_timer_max = 500/1000 --ms, tiempo que tengo para encadenar el ataque1
+atk11Knockback = 50 
+atk12Knockback = 70
+atk13Knockback = 120
 hurt1_timer_max = 300/1000 --Tiempo que dura el daño1
+
+atk2Knockback = 70
+atk2_timer_max = 400 / 1000 -- tiempo hasta que termine el estado. En realidad deberia terminar cuando termine de ciclar los frames, pero es mas rapido ahora dejarlo asi que hacer ese chequeo 
 
 Pjes = {} -- Lista de personajes
 
@@ -70,11 +76,12 @@ function Personaje:new(id)
 ]]
    
    --SPRITES
+   --Todo: Hacer que las cuatro orientaciones se levanten juntas 
    self:addEstado('IDLE', "knight/idle-h/", Personaje.init_idle, nil, 'Derecha')
    self:addOrientacionEstado('IDLE', "knight/idle-up/",  'Arriba')
    self:addOrientacionEstado('IDLE', "knight/idle-down/",'Abajo')
    self:addOrientacionEstado('IDLE', "knight/idle-h/",  'Izquierda')  
-   --Todo: Pensar si resolver de otra manera las orientaciones izq (no repetir sprites en memoria)
+   --Todo: Resolver de otra manera las orientaciones izq (no repetir sprites en memoria)
 
    self:addEstado('WALK', "knight/walk-h/", nil, Personaje.update_walk, 'Derecha')
    self:addOrientacionEstado('WALK', "knight/walk-up/", 'Arriba')
@@ -114,12 +121,18 @@ function Personaje:new(id)
    self:addOrientacionEstado('HURT1', "knight/hurt1-h/",'Izquierda')
 
 
+   self:addEstado('ATK2_CHARGE', "knight/atk2_charge-h/", Personaje.initAtk2, nil, 'Derecha')
+   self:addOrientacionEstado('ATK2_CHARGE', "knight/atk2_charge-up/", 'Arriba')
+   self:addOrientacionEstado('ATK2_CHARGE', "knight/atk2_charge-down/",'Abajo')
+   self:addOrientacionEstado('ATK2_CHARGE', "knight/atk2_charge-h/",'Izquierda')
+
+   self:addEstado('ATK2_RELEASE', "knight/atk2_release-h/", nil, Personaje.updateAtk2, 'Derecha')
+   self:addOrientacionEstado('ATK2_RELEASE', "knight/atk2_release-up/", 'Arriba')
+   self:addOrientacionEstado('ATK2_RELEASE', "knight/atk2_release-down/",'Abajo')
+   self:addOrientacionEstado('ATK2_RELEASE', "knight/atk2_release-h/",'Izquierda')
    
 
-   --self:addEstado('ATK1', "pje/boxtest/")
-
-
-   --Estado actual
+   --Estado inicial
    self:setEstado('IDLE')   
    self.orientacion = 'Derecha'
 
@@ -254,7 +267,7 @@ function Personaje:addDurationFrames()
 
    --Seteo al doble la duracion del primero de todos los frames de ataque
    for ename, estado in pairs(self.estados) do
-      if estaEn({'ATK11', 'ATK12', 'ATK13'}, estado.name) then
+      if estaEn({'ATK11', 'ATK12', 'ATK13, ATK2_RELEASE'}, estado.name) then
          print('Alargando durs en estado ' .. estado.name)
          for oname, orientacion in pairs(estado.frames) do
             print('Alargando dur en orientacion '.. oname)
@@ -278,7 +291,7 @@ end
 function Personaje:update(dt)
 
    --Posicion, frame actual y acciones de estado
-   Objeto.update(self, dt)  --OJO: La sintaxis del ":" reemplazando al "self" como 1er parametro no funciona acá, por alguna razon
+   Objeto.update(self, dt)  --OJO: Esta es la sintaxis para llamar a "self:update(dt)" de la clase Objeto, 
 
 
    --Se fija como actualizar las vars de movimiento
@@ -302,10 +315,26 @@ function Personaje:update(dt)
       self.y = math.clamp(self.y, camera.y, camera.y + camera:getHeight() - self.h/2)
    end
 
+   self:frenar(1.5)
+
 end   
 
 --Todo: Que todos los self.scale sean siempre 1 y listo... paz.... 
 
+--Aplica fuerza de freno proporcional a la velocidad
+--Todo: Pisa el valor anterior de acc. No deberia, deberia aplicar la fuerza nada mas. Por ahora anda porque no hay otras fuerzas en juego...
+--c es la constante de que tan rapido frena
+--Todo: mejorar
+function Personaje:frenar(c)
+
+
+   self.accx = -c * self.velx
+   self.accy = -c * self.vely
+
+   if(math.abs(self.accx)) < 300 then self.accx = sign(self.accx)*300 end
+   if(math.abs(self.accy)) < 300 then self.accy = sign(self.accy)*300 end
+
+end
 
 ------------------------------  COMANDOS MOVIMIENTO ---------------------------------------------
 
@@ -321,7 +350,7 @@ end
 --Funcion global para que las cuatro teclas llamen. Total siempre hago lo mismo
 function Personaje:comandoMovtPress(tecla, orientacion)
 
-   --Si estoy Idle, entro a caminar
+   --Si estoy Idle, entro a caminar, y fijo la orientacion
    if self:estaEnEstado({'IDLE'}) then 
       self:setEstado('WALK')
       self.orientacion = orientacion
@@ -334,16 +363,20 @@ function Personaje:comandoMovtPress(tecla, orientacion)
 
 end
 
+--TODO repensar toda esta logica de press de teclas de direccion
 
 --Recibe un "mover a la derecha"
 --Tecla id: 'Pje1_right'
 function Personaje:comandoRightPress()
+   if self:estaEnEstado({'ATK2_CHARGE'}) then self.orientacion = 'Derecha' end
+
 
    self:comandoMovtPress(self.teclas['p_right'], 'Derecha')
 end
 
 --Recibe un "mover a la izquierda"
 function Personaje:comandoLeftPress()
+   if self:estaEnEstado({'ATK2_CHARGE'}) then self.orientacion = 'Izquierda' end
 
    self:comandoMovtPress(self.teclas['p_left'], 'Izquierda')
 end
@@ -351,10 +384,14 @@ end
 
 --Recibe un "mover arriba"
 function Personaje:comandoUpPress(tecla)
+   if self:estaEnEstado({'ATK2_CHARGE'}) then self.orientacion = 'Arriba' end
+
    self:comandoMovtPress(self.teclas['p_up'], 'Arriba')
 end
 
 function Personaje:comandoDownPress(tecla)
+   if self:estaEnEstado({'ATK2_CHARGE'}) then self.orientacion = 'Abajo' end
+
    self:comandoMovtPress(self.teclas['p_down'], 'Abajo')
 end
 
@@ -436,8 +473,8 @@ function Personaje:dash_vt()
 
    local t = self.dash_timer
 
-   local semicirculo = self.vdash*math.sqrt(-t*(t-dash_timer_max))
-   local exponencial_dec = self.vdash*(10^(-t))
+   --local semicirculo = self.vdash*math.sqrt(-t*(t-dash_timer_max))
+   --local exponencial_dec = self.vdash*(10^(-t))
    local recta_dec = self.vdash*(dash_timer_max - t)
    return  recta_dec
 end
@@ -476,6 +513,7 @@ end
 -- Los llaman una fun de walk, una de runx, y otra de runy
 --Todo falta asignas sprites
 --Nota: Esto es mucho más caro que recalcular cuando me llega un press, porque se hace todos los frames
+--Todo: Recalcular solo cuando llega un press o un release
 function Personaje:chequearVelocidadDeMovimiento(vx, vy)
 
    self.velx = 0
@@ -533,7 +571,7 @@ end
 
 
 
-------------------------------------  ATK1 
+------------------------------------  ATK 1 2 3
 function Personaje:comandoAtk1Press()
    if(self:estaEnEstado({'IDLE', 'WALK', 'RUN'})) then self:setEstado('ATK11'); return end
 
@@ -551,12 +589,12 @@ end
 
 function Personaje:initAtk11()
    self.atk1_timer = 0
-   self.atkKnockback = 50 --Ricochet que le imprime a otro si le pega
+   self.atkKnockback = atk11Knockback --Ricochet que le imprime a otro si le pega
 end
 
-function Personaje:initAtk12() self.atk1_timer = 0 ; self.atkKnockback = 70 end
+function Personaje:initAtk12() self.atk1_timer = 0 ; self.atkKnockback = atk12Knockback end
 
-function Personaje:initAtk13() self.atk1_timer = 0 ; self.atkKnockback = 120 end
+function Personaje:initAtk13() self.atk1_timer = 0 ; self.atkKnockback = atk13Knockback end
 
 function Personaje:updateAtk1(dt)
 
@@ -605,4 +643,48 @@ end
 --Se llama cuando otro objeto lo golpea
 function Personaje:recibirHit(otroObjeto)
    self:setEstado('HURT1')
+end
+
+
+
+
+------------------------------------  ATK CHARGE
+function Personaje:comandoAtk2Press()
+   if(self:estaEnEstado({'IDLE', 'WALK', 'RUN'})) then self:setEstado('ATK2_CHARGE'); return end
+end
+
+function Personaje:comandoAtk2Release()
+   if(self:estaEnEstado({'ATK2_CHARGE'})) then self:setEstado('ATK2_RELEASE'); return end
+end
+
+--Se llama al entrar al atk2_charge
+function Personaje:initAtk2()
+   self.atkKnockback = atk2Knockback
+   self.atk2_timer = 0
+
+   --Resetear orientacion a la de la ultima tecla de movimiento presionada
+   --Todo refactor esto 
+
+   --Setea la orientacion segun la tecla de direccion presionada mas reciente
+   local teclas_mvt = {self.teclas['p_up'], self.teclas['p_down'], self.teclas['p_right'], self.teclas['p_left']}
+   table.sort(teclas_mvt, function(a,b) return a.last_pressed_time > b.last_pressed_time end)
+   local ultimaTecla = teclas_mvt[1] --La ultima tecla de movimiento presionada
+   
+   if(ultimaTecla== self.teclas['p_up']) then self.orientacion = 'Arriba'
+   elseif (ultimaTecla== self.teclas['p_down']) then self.orientacion = 'Abajo'
+   elseif (ultimaTecla== self.teclas['p_right']) then self.orientacion = 'Derecha'
+   elseif (ultimaTecla== self.teclas['p_left']) then self.orientacion = 'Izquierda'
+   end
+
+
+
+end
+
+
+--Se llama durante atk2_release
+function Personaje:updateAtk2(dt)
+   self.atk2_timer = self.atk2_timer + dt
+
+   if(self.atk2_timer > atk2_timer_max) then self:setEstado('IDLE') end
+
 end

@@ -80,3 +80,7 @@ function compararSegunY(obj1, obj2)
     return  yInferior1  < yInferior2 
 
 end
+
+function sign(x)
+  if x>0 then return 1 elseif x < 0 then return -1 else return 0 end
+end

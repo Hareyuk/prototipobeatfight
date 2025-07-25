@@ -79,6 +79,7 @@ function cargarFramesYHitboxes(carpeta)
    --local trim = false --Esto lo agregué para los sprites de PJE: Recorta todo el espacio vacío y devuelve solo lo "minimo" indispensable
    --if string.find (carpeta, 'knight/') then trim = true end
    --Esta manera no es robusta asi que la desactivo
+   --Todo estos comentarios son viejos? Pueden volar
 
 
    imagenes = loadSprites(carpeta) --consigo las imagenes. Acá estan todas, los frames propiamente, hit, hurt y collision boxes. Cada uno con un tag en el nombre
@@ -126,6 +127,7 @@ end
 --Recibe un png idealmente vacío salvo por un rectangulo, y devuelve posicion de x,y,w y h de ese rect
 -- Lo que hace es encontrar el menor rectangulo posible que tiene pixeles de la imagen, ignorando espacios vacios.
 -- Util para recortar bordes vacios en sprites
+--TODO: En la version final, esto se usa para dejar todo prerecortado y ya no se llama más
 function getXYWH(imgdata)
 
    img = imgdata --renombre comodo
@@ -185,11 +187,11 @@ end
 --Ojo con esto que me rompió el coco más de un dia... para hacer el flip, el parametro Offset se aplica ANTES del SCALE
 
 
+--Unused
+
 --Recorta todos los sprites de un objeto guardandose para que empiecen en (x,y) y con dimensiones w,h
 --Obviamente hecho para los sprites de knight nada mas
 --La idea es recortar el espacio sobrante de los frames pero que sea igual en todos
-
---Unused
 function trimSprites(objeto, x,y, w, h)
 
    local trimmedImageData = love.image.newImageData(w, h)
